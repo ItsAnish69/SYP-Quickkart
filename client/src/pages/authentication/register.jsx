@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ShoppingCart } from 'lucide-react'
+import { ShoppingCart, Eye, EyeOff } from 'lucide-react'
 import registerSvg from '../../img/register.png';
 
 const register = () => {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <>
      <div className="min-h-screen w-full flex">
@@ -57,25 +59,40 @@ const register = () => {
               <label className="block text-gray-600 text-sm mb-2" htmlFor="password">
                 Password
               </label>
-              <input
-                className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#007E5D] focus:border-transparent"
-                id="password"
-                type="password"
-                placeholder=""
-                required
-              />
+              <div className="relative">
+                <input
+                  className="w-full py-3 px-4 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#007E5D] focus:border-transparent"
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder=""
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#007E5D] focus:outline-none"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
             </div>
 
-            <div className="text-left mb-6">
-              <a href="#" className="text-sm text-[#007E5D]">
-                Forgot password?
-              </a>
+            <div className="text-left mb-5 gap-2 flex items-center">
+              {/* add a checkbox icon */}
+               <input type="checkbox" className='cursor-pointer'/>
+              <p className="text-sm text-gray-500">
+                Remember Me
+              </p>
             </div>
 
             <button
               className="w-full bg-[#007E5D] hover:bg-[#006B4D] text-white font-[300] py-3 px-4 rounded-lg transition duration-300"
               type="submit">
-              Sign In
+              Sign Up
             </button>
 
             {/* OR divider */}

@@ -13,7 +13,7 @@ const forgotPassword = () => {
       {/* image and text */}
       <div className='p-3 relative flex flex-col items-center justify-center hidden md:flex'>
       <img src={forgotPasswordSvg} alt="forgot-password page" width={500}/>
-      <p className='w-100 relative bottom-10 text-sm md:text-md lg:text-lg '>If you forgot your password, send an email to receive the OTP for password reset.</p>
+      <p className='w-100 relative bottom-10 text-sm md:text-md lg:text-lg '>Forgot your password, enter your email to receive the OTP for password reset.</p>
       </div>
 
     {/* form */}

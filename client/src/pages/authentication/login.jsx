@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ShoppingCart } from 'lucide-react'
+import { ShoppingCart, Eye, EyeOff} from 'lucide-react'
 import LoginSvg from '../../img/loginsvg.png';
 
 const login = () => {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <div className="h-screen w-full flex">
       {/* Left section - Gradient background */}
@@ -58,10 +60,20 @@ const login = () => {
               <input
                 className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#007E5D] focus:border-transparent"
                 id="password"
-                type="password"
+                type={showPassword? "text" : "password"}
                 placeholder=""
                 required
               />
+              <button
+              type='button'
+              onClick={() => setShowPassword(!showPassword)}
+              className = 'absolute right-3 top-92 text-gray-400 hover:text-[#007E5D] focus:outline-none'>
+               {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
+              </button>
             </div>
 
             <div className="text-right mb-6">
