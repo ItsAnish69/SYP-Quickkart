@@ -1,46 +1,140 @@
-import { TicketPlus } from 'lucide-react'
-import { Link, useNavigate,  } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { ChevronDown, Menu, X } from 'lucide-react'
+import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 
 const navbar = () => {
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 1100);
 
-  const navigate = useNavigate()
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 1100);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const menuItems = [
+    {label: 'Home', dropdown: false, link: '/' },
+    { label: 'Products', dropdown: true, link: '/product' },
+    { label: 'About Us', dropdown: false, link: '/about-us' },
+    { label: 'Contact', dropdown: false, link: '/contact' },
+  ];
+
+  const navigate = useNavigate();
 
   return (
-     <div className="navbar bg-[#09090B] shadow-sm lg:px-20 md:px-10">
-  <div className="navbar-start">
-    <div className="dropdown">
-      <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden md:hidden ">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" /> </svg>
+    <nav className="bg-white shadow-md fixed w-full top-0 z-50 h-18">
+      <div className="mx-auto px-6 py-4 flex items-center justify-between w-full px-20">
+        
+        {/* Logo and Menu - Left Side */}
+        <div className="flex items-center gap-20">
+          {/* Logo */}
+          <div className="flex-shrink-0 cursor-pointer" onClick={() => navigate('/')}>
+            <span><FontAwesomeIcon icon={faShoppingCart} className='text-2xl px-2'/></span>
+            <span className='text-gray-900 text-2xl font-bold'>Quick</span>
+            <span className='text-[#007E5D] text-2xl font-bold'>kart</span>
+          </div>
+
+          {/* Left Menu */}
+          <div className={`${isSmallScreen ? 'hidden' : 'flex'} items-center gap-8`}>
+            {menuItems.map((item) => (
+              <div key={item.label} className="relative group">
+                <button className="flex items-center gap-2 text-gray-700 hover:text-[#007E5D] transition-colors duration-200 text-md"
+                onClick = {() => navigate(item.link)}>
+                  {item.label}
+                  {item.dropdown && (
+                    <ChevronDown size={16} className="group-hover:rotate-180 transition-transform duration-300 " />
+                  )}
+                </button>
+                
+                {/* Dropdown Menu */}
+                {item.dropdown && (
+                  <div className="absolute left-0 mt-0 w-48 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 py-2 z-10 border border-gray-200">
+                    <a href="#" className="block px-4 py-2 text-gray-700 hover:text-[#007E5D] hover:bg-gray-100 text-sm transition-colors">
+                      Electronics
+                    </a>
+                    <a href="#" className="block px-4 py-2 text-gray-700 hover:text-[#007E5D] hover:bg-gray-100 text-sm transition-colors">
+                      Groceries
+                    </a>
+                    <a href="#" className="block px-4 py-2 text-gray-700 hover:text-[#007E5D] hover:bg-gray-100 text-sm transition-colors">
+                      Clothing 
+                    </a>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right Actions */}
+        <div className="flex items-center gap-6">
+          <button className={`${isSmallScreen ? 'hidden' : 'block'} text-gray-700 hover:text-gray-900 transition-colors duration-200 text-md font-medium`}
+          onClick={() => navigate('/register')}>
+            Sign in
+          </button>
+          <button className={`${isSmallScreen ? 'hidden' : 'block'} bg-gray-900 hover:bg-gray-800 text-white font-medium px-6 py-2 rounded-lg transition-colors duration-200 text-md`}
+          onClick={() => navigate('/login')}>
+            Login
+          </button>
+
+          {/* Hamburger Icon - Mobile */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className={`${isSmallScreen ? 'block' : 'hidden'} text-gray-700 hover:text-gray-900 transition-colors`}
+          >
+            {mobileMenuOpen ? (
+              <X size={24} />
+            ) : (
+              <Menu size={24} />
+            )}
+          </button>
+        </div>
       </div>
-      <ul
-        tabIndex="-1"
-        className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
-        <li><a>Home</a></li>
-        <li><a>Product</a></li>
-        <li><a>About Us</a></li>
-        <li><a>Contact</a></li>
-      </ul>
-    </div>
-    <div className='cursor-pointer' onClick={() => navigate('/')}>
-    <span className="text-2xl font-bold text-white">Quick</span>
-    <span className="text-2xl font-bold text-[#D63854]">Kart</span>
-    
-  </div>
-  </div>
-  <div className="navbar-center bg-[#1e1e1e] hidden md:flex lg:flex gap-x-5 border border-gray-700 text-gray-200 px-4 py-2 rounded-3xl animation duration-300">
-    <Link className='hover:text-[#D63854] cursor-pointer ' to='/'>Home</Link>
-    <Link className='hover:text-[#D63854] cursor-pointer ' to='/product'>Product</Link>
-    <Link className='hover:text-[#D63854] cursor-pointer ' to='/about-us'>About Us</Link>
-    <Link className='hover:text-[#D63854] cursor-pointer ' to='/contact'>Contact</Link>
-  </div>
-  <div className="navbar-end">
-    <div className='px-5'>
-     <button className="btn btn-ghost btn-circle">
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /> </svg>
-    </button>
-    </div>
-  </div>
-</div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && isSmallScreen && (
+        <div className="bg-white border-t border-gray-200">
+          <div className="px-6 py-4 space-y-4">
+            {menuItems.map((item) => (
+              <div key={item.label}>
+                <button className="w-full text-left flex items-center justify-between text-gray-700 hover:text-gray-900 py-2 text-sm">
+                  {item.label}
+                  {item.dropdown && <ChevronDown size={16} />}
+                </button>
+                {item.dropdown && (
+                  <div className="pl-4 space-y-2 py-2">
+                    <a href="#" className="block text-gray-600 hover:text-gray-900 text-sm py-1">
+                      Option 1
+                    </a>
+                    <a href="#" className="block text-gray-600 hover:text-gray-900 text-sm py-1">
+                      Option 2
+                    </a>
+                    <a href="#" className="block text-gray-600 hover:text-gray-900 text-sm py-1">
+                      Option 3
+                    </a>
+                  </div>
+                )}
+              </div>
+            ))}
+            
+            {/* Mobile Action Buttons */}
+            <div className="border-t border-gray-200 pt-4 space-y-3">
+              <button className="w-full text-gray-700 hover:text-gray-900 transition-colors py-2 text-sm font-medium">
+                Sign in
+              </button>
+              <button className="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-2 rounded-lg transition-colors text-sm">
+                Login
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </nav>
   )
 }
 

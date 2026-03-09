@@ -1,17 +1,46 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ShoppingCart, Eye, EyeOff } from 'lucide-react'
-import registerSvg from '../../img/register.png';
+import registerSvg from '../../img/authenticationImg/register.png';
+import axios from 'axios';
+
 
 const register = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const[name, setName] = useState("");
+  const[email, setEmail] = useState("");
+  const[password, setPassword] = useState("");
 
+const clickRegister = async(e) =>{
+  e.preventDefault(); // Prevent form refresh
+  
+  try {
+    const response = await axios.post("http://localhost:5000/api/auth/register", {
+      name,
+      email,
+      password
+    });
+    alert(response.data.message);
+    
+    if(response.data.success){
+      // Store token if returned
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user || {}));
+      }
+      //redirect to login page
+      window.location.href = "/login";
+    }
+  } catch (err){ 
+    alert(err.response?.data?.message || "Registration failed");    
+  }
+}
   return (
     <>
-     <div className="min-h-screen w-full flex">
+     <div className="min-h-screen w-full flex flex-col md:flex-row">
       {/* Left section - Login form */}
-      <div className="w-full lg:w-[50%] flex justify-center items-center px-8 sm:px-20 animate-fade-in">
-        <div className="w-750 max-w-md animate-slide-up">
+      <div className="w-full md:w-1/2 flex justify-center items-center px-4 sm:px-8 py-8 sm:py-12 animate-fade-in">
+        <div className="w-full max-w-md animate-slide-up">
           {/* Logo */}
           <div className="flex items-center gap-2 mb-8 animate-fade-in-delay-1">
             <ShoppingCart className="w-8 h-8 text-[#007E5D]" />
@@ -19,16 +48,17 @@ const register = () => {
           </div>
 
           {/* Welcome text */}
-          <h1 className="text-4xl font-[600] mb-2 animate-fade-in-delay-2">Create an</h1>
-          <h1 className="text-4xl font-[600] mb-6 animate-fade-in-delay-2">account</h1>
+          <h1 className="text-4xl font-semibold mb-2 animate-fade-in-delay-2">Create an</h1>
+          <h1 className="text-4xl font-semibold mb-6 animate-fade-in-delay-2">account</h1>
           
           {/* Sign up link */}
-          <p className="text-gray-600 mb-8 font-[300] animate-fade-in-delay-3">
-            Already have an account? <Link to="/login" className="text-[#007E5D] hover:underline">Sign In</Link>
+          <p className="text-gray-600 mb-8 font-light animate-fade-in-delay-3">
+            Already have an account? <Link to="/login" className="text-[#007E5D] hover:underline cusor-pointer">Sign In</Link>
           </p>
 
           {/* Form */}
-          <form className="animate-fade-in-delay-4">
+          <form className="animate-fade-in-delay-4"
+          onSubmit={clickRegister}>
             <div className="mb-4">
               <label className="block text-gray-600 text-sm mb-2" htmlFor="email">
                 Username
@@ -39,6 +69,7 @@ const register = () => {
                 type="text"
                 placeholder=""
                 required
+                onChange={(e) => setName(e.target.value)}
               />
             </div>
 
@@ -52,6 +83,7 @@ const register = () => {
                 type="email"
                 placeholder=""
                 required
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
@@ -66,6 +98,7 @@ const register = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder=""
                   required
+                  onChange = {(e) => setPassword(e.target.value)}
                 />
                 <button
                   type="button"
@@ -90,8 +123,9 @@ const register = () => {
             </div>
 
             <button
-              className="w-full bg-[#007E5D] hover:bg-[#006B4D] text-white font-[300] py-3 px-4 rounded-lg transition duration-300"
-              type="submit">
+              className="w-full bg-[#007E5D] hover:bg-[#006B4D] text-white font-light py-3 px-4 rounded-lg transition duration-300 cursor-pointer"
+              type="submit"
+              >
               Sign Up
             </button>
 
@@ -112,21 +146,21 @@ const register = () => {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              <span className="text-gray-700">Continue with google</span>
+              <span className="text-gray-700 cursor-pointer">Continue with google</span>
             </button>
           </form>
         </div>
       </div>
 
        {/* Right section - Gradient background */}
-      <div className="w-[50%] hidden md:flex justify-center p-20 flex-col items-center sm:px-20 py-15 animate-fade-in-right"
+      <div className="w-full md:w-1/2 hidden md:flex justify-center p-8 md:p-20 flex-col items-center animate-fade-in-right"
         style={{ background: 'linear-gradient(135deg, #007E5D 40%, #00E4A8 100%)' }}>
         <div className="px-5 py-3 w-auto text-center text-white animate-fade-in-delay-2">
-          <h1 className="text-3xl font-[500] tracking-wide w-80 mt-5">Create Your Quickkart Account</h1>
+          <h1 className="text-3xl font-medium tracking-wide w-80 mt-5">Create Your Quickkart Account</h1>
         </div>
-        <img src={registerSvg} alt="Register" width={400} className="animate-fade-in-delay-3" />
+        <img src={registerSvg} alt="Register" width={400} className="animate-fade-in-delay-3 max-w-xs md:max-w-sm" />
         <div className="px-5 py-3 w-auto text-center text-white animate-fade-in-delay-4">
-          <p className="text-md mt-5 w-100 font-[200]">Join QuickKart to shop fresh groceries anytime, anywhere. Sign up to get instant access to exclusive deals, quick checkout, and real-time order tracking.</p>
+          <p className="text-md mt-5 w-100 font-extralight">Join QuickKart to shop fresh groceries anytime, anywhere. Sign up to get instant access to exclusive deals, quick checkout, and real-time order tracking.</p>
         </div>
       </div>
     </div>

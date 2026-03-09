@@ -1,57 +1,147 @@
-import React from 'react'
-import { Link } from 'react-router-dom';
-import forgotPasswordSvg from '../img/forgotpass.png';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import forgotPasswordSvg from "../img/forgotpass.png";
 
 const forgotPassword = () => {
+  const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send reset email");
+      }
+
+      setSubmitted(true);
+      setEmail("");
+    } catch (err) {
+      setError(err.message || "An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
+        <div className="w-full max-w-md px-6">
+          <div className="text-center">
+            <img
+              src={forgotPasswordSvg}
+              alt="Email sent"
+              className="h-40 w-40 mx-auto mb-8"
+            />
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+              Email sent!
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-8">
+              Check your email for a link to reset your password.
+            </p>
+            <button
+              onClick={() => navigate("/authentication/login")}
+              className="inline-block w-full bg-[#FF6B35] hover:bg-orange-600 text-white font-semibold py-3 rounded-full transition duration-200"
+            >
+              Back to Login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className='w-full h-screen rounded-lg flex flex-row items-center justify-center gap-6 text-center'>
-      <div className=''>
-     <div className='w-100 h-40 rotate-[-30deg] bg-[#AEAEAE] absolute top-[-60px] right-0 rounded-sm'></div>
-     <div className='w-80 h-40 rotate-[-30deg] bg-[#007E5D] absolute top-[-40px] right-0 rounded-sm'></div>
-     </div>
+    <div className="min-h-screen flex flex-col bg-white transition-colors duration-300">
+      {/* Header with Logo and Register Link */}
+      {/* Main Content */}
+      <div className="flex-grow flex items-center justify-center px-6">
+        <div className="w-full max-w-md">
+          {/* Illustration */}
+          <div className="text-center mb-12">
+            <img
+              src={forgotPasswordSvg}
+              alt="Forgot password"
+              className="h-64 mx-auto"
+            />
+          </div>
 
-      {/* image and text */}
-      <div className='p-3 relative flex flex-col items-center justify-center hidden md:flex'>
-      <img src={forgotPasswordSvg} alt="forgot-password page" width={500}/>
-      <p className='w-100 relative bottom-10 text-sm md:text-md lg:text-lg '>Forgot your password, enter your email to receive the OTP for password reset.</p>
-      </div>
+          {/* Content */}
+          <div className="text-center flex flex-col relative bottom-10">
+            {/* Heading */}
+            <h1 className="text-4xl font-bold text-black mb-4">
+              Forgot your password?
+            </h1>
 
-    {/* form */}
-    <div className='p-10 mt-10 w-120 border border-gray-100 rounded-lg shadow-xl max-w-lg '>
-      <div className='text-left'>
-      <h2 className='text-3xl sm:text-3xl md:text-3xl lg:text-4xl font-[550]'>Forgot Your</h2>
-      <h2 className='text-3xl sm:text-3xl md:text-3xl lg:text-4xl font-[550] mb-8'>Password?</h2>
-      </div>
-       <form className="">
-            <div className="mb-4">
-              <label className="block text-gray-600 text-sm mb-3 text-left" htmlFor="email">
+            {/* Description */}
+            <p className="text-gray-600 text-sm">
+              Enter your email so that we can send you password reset link
+            </p>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg">
+              <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-gray-700 text-sm font-medium mb-2"
+              >
                 Email
               </label>
               <input
-                className="w-full py-2 px-4 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#007E5D] focus:border-transparent"
                 id="email"
                 type="email"
-                placeholder=""
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
+                placeholder="e.g. username@quickkart.com"
+                className="w-full px-4 py-3 border border-gray-300 rounded-full bg-white focus:outline-none 
+                focus:ring-2 focus:border-transparent text-gray-900 placeholder-gray-500 transition-colors duration-300"
               />
             </div>
 
             <button
-              className="w-full bg-[#007E5D] hover:bg-[#006B4D] text-white font-[300] py-3 px-4 rounded-lg transition duration-300"
-              type="submit" 
-              >
-              Send
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#007E5D] hover:bg-gray-900 text-white font-semibold py-3 rounded-full transition duration-200"
+            >
+              {loading ? "Sending..." : "Send Email"}
             </button>
+          </form>
 
-            <p className='text-center mt-5 text-sm'>
-              <Link to="/login" className='text-[#007E5D] hover:underline font-[400]'>
-                Go back to sign in
-              </Link>
-            </p>
-            </form>
+          {/* Back to Login Link */}
+          <div className="text-center mt-8">
+            <button
+              onClick={() => navigate("/login")}
+              className="text-black text-md flex w-full items-center justify-center gap-2 transition-colors duration-300 hover:underline hover:text-[#007E5D]"
+            >
+              <span>← Back to login</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-    </div>
-  )
-}
+  );
+};
 
-export default forgotPassword
+export default forgotPassword;

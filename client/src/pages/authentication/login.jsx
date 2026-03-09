@@ -1,22 +1,72 @@
 import React, { useState } from 'react'
+import axios from 'axios'
 import { Link } from 'react-router-dom'
 import { ShoppingCart, Eye, EyeOff} from 'lucide-react'
-import LoginSvg from '../../img/loginsvg.png';
+import LoginSvg from '../../img/authenticationImg/login.png';
 
 const login = () => {
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); 
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async(e) =>{
+    e.preventDefault();
+
+    try{
+      const response = await axios.post("http://localhost:5000/api/auth/login", {
+        email,
+        password
+      });
+
+      if (response.data.success) {
+        setAlertMessage(response.data.message);
+        setShowAlert(true);
+
+        // Store token and user info
+        if (response.data.token) {
+          localStorage.setItem('token', response.data.token);
+          localStorage.setItem('user', JSON.stringify(response.data.user || {}));
+        }
+
+        setTimeout(() => {
+          setShowAlert(false);
+          window.location.href = '/';
+        }, 1000);
+      }
+    } catch (error) {
+      alert(error.response?.data?.message || "Login failed");
+    }
+  }
 
   return (
-    <div className="h-screen w-full flex">
+    <div className="h-screen w-full flex relative">
+    {/*Success message */}
+    {showAlert && (
+      <div role="alert" className="alert alert-success fixed top-4 right-4 z-50 w-120 max-w-sm shadow-lg animate-slide-in-right">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-10 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{alertMessage}</span>
+          <button 
+            onClick={() => setShowAlert(false)}
+            className="btn btn-sm btn-ghost"
+          >
+            ✕
+          </button>
+        </div>
+    )}
       {/* Left section - Gradient background */}
       <div className="w-[50%] hidden lg:flex justify-center p-20 flex-col items-center sm:px-20 py-15 animate-fade-in"
         style={{ background: 'linear-gradient(135deg, #007E5D 40%, #00E4A8 100%)' }}>
         <div className="px-5 py-3 w-auto text-center text-white animate-fade-in-delay-2">
-          <h1 className="text-3xl font-[400] tracking-wide w-60 mt-5">Welcome Back to Quickkart</h1>
+          <h1 className="text-3xl font-normal tracking-wide w-60 mt-5">Welcome Back to Quickkart</h1>
         </div>
         <img src={LoginSvg} alt="Login" width={400} className="animate-fade-in-delay-3" />
         <div className="px-5 py-3 w-auto text-center text-white animate-fade-in-delay-4">
-          <p className="text-md mt-5 w-100 font-[200]">Your daily essentials are just a click away. Log in to continue shopping, track your orders, and enjoy fast and hassle-free grocery delivery.</p>
+          <p className="text-md mt-5 w-100 font-extralight">Your daily essentials are just a click away. Log in to continue shopping, track your orders, and enjoy fast and hassle-free grocery delivery.</p>
         </div>
       </div>
 
@@ -30,16 +80,16 @@ const login = () => {
           </div>
 
           {/* Welcome text */}
-          <h1 className="text-4xl font-[600] mb-2 animate-fade-in-delay-2">Welcome,</h1>
-          <h1 className="text-4xl font-[600] mb-6 animate-fade-in-delay-2">Back!</h1>
+          <h1 className="text-4xl font-semibold mb-2 animate-fade-in-delay-2">Welcome,</h1>
+          <h1 className="text-4xl font-semibold mb-6 animate-fade-in-delay-2">Back!</h1>
           
           {/* Sign up link */}
-          <p className="text-gray-600 mb-8 font-[300] animate-fade-in-delay-3">
+          <p className="text-gray-600 mb-8 font-light animate-fade-in-delay-3">
             Don't have an account? <Link to="/register" className="text-[#007E5D] hover:underline">Sign Up</Link>
           </p>
 
           {/* Form */}
-          <form className="animate-fade-in-delay-4">
+          <form className="animate-fade-in-delay-4" onSubmit={handleLogin}>
             <div className="mb-4">
               <label className="block text-gray-600 text-sm mb-2" htmlFor="email">
                 Email
@@ -50,6 +100,7 @@ const login = () => {
                 type="email"
                 placeholder=""
                 required
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
@@ -63,11 +114,12 @@ const login = () => {
                 type={showPassword? "text" : "password"}
                 placeholder=""
                 required
+                onChange={(e) => setPassword(e.target.value)}
               />
               <button
               type='button'
               onClick={() => setShowPassword(!showPassword)}
-              className = 'absolute right-3 top-92 text-gray-400 hover:text-[#007E5D] focus:outline-none'>
+              className = 'absolute right-3 top-92 text-gray-400 hover:text-[#007E5D] focus:outline-none cursor-pointer'>
                {showPassword ? (
                   <EyeOff className="w-5 h-5" />
                 ) : (
@@ -83,7 +135,7 @@ const login = () => {
             </div>
 
             <button
-              className="w-full bg-[#007E5D] hover:bg-[#006B4D] text-white font-[300] py-3 px-4 rounded-lg transition duration-300"
+              className="w-full bg-[#007E5D] hover:bg-[#006B4D] text-white font-light py-3 px-4 rounded-lg transition duration-300 cursor-pointer"
               type="submit" 
               >
               Sign In
@@ -106,7 +158,7 @@ const login = () => {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              <span className="text-gray-700">Continue with google</span>
+              <span className="text-gray-700 cursor-pointer">Continue with google</span>
             </button>
 
           </form>

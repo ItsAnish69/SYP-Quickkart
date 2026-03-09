@@ -16,4 +16,6 @@ QuickKart is an online shopping application that allows users to purchase a vari
 - `/contact` - Contact page (coming soon)
 
 
-
+## Backend file created and initialized
+npm init -y to initialize the package.json file on the backend
+npm install express mysql2 bcrypt jsonwebtoken cors dotenv (other required necessary libraries)
