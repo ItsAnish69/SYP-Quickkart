@@ -3,8 +3,15 @@ import axios from 'axios';
 import { Plus, X } from 'lucide-react';
 
 const initialForm = {
+  department: 'clothing',
   name: '',
   price: '',
+  oldPrice: '',
+  rating: '',
+  reviews: '',
+  color: '',
+  image: '',
+  images: '',
   description: '',
 };
 
@@ -61,11 +68,26 @@ const ProductsPage = () => {
       return;
     }
 
+    if (!formData.image.trim()) {
+      setError('Image URL is required');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const payload = {
+        department: formData.department,
         name: formData.name,
         price: Number(formData.price),
+        oldPrice: formData.oldPrice ? Number(formData.oldPrice) : null,
+        rating: formData.rating ? Number(formData.rating) : 0,
+        reviews: formData.reviews ? Number(formData.reviews) : 0,
+        color: formData.color,
+        image: formData.image,
+        images: formData.images
+          .split(',')
+          .map((value) => value.trim())
+          .filter(Boolean),
         description: formData.description,
       };
       const response = await axios.post('http://localhost:5000/api/products', payload);
@@ -107,8 +129,11 @@ const ProductsPage = () => {
               <thead>
                 <tr className="border-b border-gray-100 bg-[#F9FAFC]">
                   <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">ID</th>
+                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Department</th>
                   <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Name</th>
                   <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Price</th>
+                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Rating</th>
+                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Reviews</th>
                   <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Description</th>
                   <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Created</th>
                 </tr>
@@ -117,8 +142,11 @@ const ProductsPage = () => {
                 {products.map((product) => (
                   <tr key={product.id} className="border-b border-gray-50 last:border-b-0">
                     <td className="py-3.5 px-4 text-sm text-gray-700">{product.id}</td>
+                    <td className="py-3.5 px-4 text-sm text-gray-700 capitalize">{product.department || '-'}</td>
                     <td className="py-3.5 px-4 text-sm font-semibold text-gray-800">{product.name || '-'}</td>
                     <td className="py-3.5 px-4 text-sm text-gray-700">${Number(product.price || 0).toFixed(2)}</td>
+                    <td className="py-3.5 px-4 text-sm text-gray-700">{Number(product.rating || 0).toFixed(1)}</td>
+                    <td className="py-3.5 px-4 text-sm text-gray-700">{product.reviews || 0}</td>
                     <td className="py-3.5 px-4 text-sm text-gray-700">{product.description || '-'}</td>
                     <td className="py-3.5 px-4 text-sm text-gray-500">{new Date(product.created_at).toLocaleString()}</td>
                   </tr>
@@ -145,6 +173,21 @@ const ProductsPage = () => {
 
             <form onSubmit={handleSubmit} className="p-5 space-y-4">
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Department *</label>
+                <select
+                  name="department"
+                  value={formData.department}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF]"
+                >
+                  <option value="clothing">Clothing</option>
+                  <option value="electronics">Electronics</option>
+                  <option value="groceries">Groceries</option>
+                  <option value="home-kitchen">Home & Kitchen</option>
+                </select>
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
                 <input
                   type="text"
@@ -167,6 +210,84 @@ const ProductsPage = () => {
                   onChange={handleChange}
                   className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF]"
                   placeholder="Enter product price"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Old Price</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    name="oldPrice"
+                    value={formData.oldPrice}
+                    onChange={handleChange}
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF]"
+                    placeholder="Optional"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Rating</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="5"
+                    name="rating"
+                    value={formData.rating}
+                    onChange={handleChange}
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF]"
+                    placeholder="0 - 5"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Reviews Count</label>
+                  <input
+                    type="number"
+                    min="0"
+                    name="reviews"
+                    value={formData.reviews}
+                    onChange={handleChange}
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF]"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                <input
+                  type="text"
+                  name="color"
+                  value={formData.color}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF]"
+                  placeholder="Optional color"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Primary Image URL *</label>
+                <input
+                  type="url"
+                  name="image"
+                  value={formData.image}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF]"
+                  placeholder="https://..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Gallery Image URLs</label>
+                <input
+                  type="text"
+                  name="images"
+                  value={formData.images}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF]"
+                  placeholder="Comma separated URLs"
                 />
               </div>
 

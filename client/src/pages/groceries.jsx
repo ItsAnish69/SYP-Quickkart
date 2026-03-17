@@ -2,32 +2,66 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { Star, SlidersHorizontal, Heart, ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { groceriesProducts } from '../data/products';
 import { addToCart, getFavouriteIds, toggleFavourite } from '../lib/shopStorage';
+import { fetchProducts } from '../lib/productsApi';
 
-const categories = ['All', 'Fruits', 'Dairy', 'Bakery', 'Pantry', 'Meat'];
 const ratingOptions = [4, 3, 2];
 
 const Groceries = () => {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [priceLimit, setPriceLimit] = useState(20);
+  const [priceLimit, setPriceLimit] = useState(0);
   const [minRating, setMinRating] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [favourites, setFavourites] = useState(() => getFavouriteIds());
+  const [products, setProducts] = useState([]);
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const rows = await fetchProducts('groceries');
+        setProducts(rows);
+
+        const numericPrices = rows
+          .map((item) => Number(item.price))
+          .filter((value) => Number.isFinite(value));
+
+        if (numericPrices.length) {
+          const min = Math.floor(Math.min(...numericPrices));
+          const max = Math.ceil(Math.max(...numericPrices));
+          setPriceRange({ min, max });
+          setPriceLimit(max);
+        }
+      } catch (err) {
+        setError(err.response?.data?.message || 'Failed to load products');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
+
+  const categories = useMemo(
+    () => ['All', ...new Set(products.map((item) => item.category).filter(Boolean))],
+    [products]
+  );
+
   const filteredProducts = useMemo(() => {
-    return groceriesProducts.filter((item) => {
+    return products.filter((item) => {
       const categoryMatch = selectedCategory === 'All' ? true : item.category === selectedCategory;
-      const priceMatch = item.price <= priceLimit;
+      const priceMatch = priceRange.max === 0 ? true : item.price <= priceLimit;
       const ratingMatch = item.rating >= minRating;
       return categoryMatch && priceMatch && ratingMatch;
     });
-  }, [selectedCategory, priceLimit, minRating]);
+  }, [selectedCategory, priceLimit, minRating, products]);
 
   const openProduct = (productId) => {
     window.scrollTo(0, 0);
@@ -112,14 +146,14 @@ const Groceries = () => {
                 <h2 className="text-sm font-semibold tracking-wide text-neutral-900 uppercase mb-4">Price</h2>
                 <input
                   type="range"
-                  min="1"
-                  max="20"
+                  min={priceRange.min}
+                  max={priceRange.max || 1}
                   value={priceLimit}
                   onChange={(e) => setPriceLimit(Number(e.target.value))}
                   className="range range-sm"
                 />
                 <div className="mt-3 flex items-center justify-between text-sm text-neutral-500">
-                  <span>$1</span>
+                  <span>${priceRange.min}</span>
                   <span className="font-semibold text-neutral-900">Up to ${priceLimit}</span>
                 </div>
               </div>
@@ -164,7 +198,16 @@ const Groceries = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {loading ? (
+              <div className="rounded-2xl border border-neutral-200 bg-white p-10 text-center text-neutral-600">
+                Loading products...
+              </div>
+            ) : error ? (
+              <div className="rounded-2xl border border-red-200 bg-red-50 p-10 text-center text-red-700">
+                {error}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {filteredProducts.map((item) => (
                 <article key={item.id} className="group rounded-2xl bg-white border border-neutral-200/70 shadow-[0_8px_24px_rgba(0,0,0,0.05)] overflow-hidden transition hover:-translate-y-1 hover:shadow-[0_14px_30px_rgba(0,0,0,0.12)]">
                   <div className="relative overflow-hidden cursor-pointer" onClick={() => openProduct(item.id)}>
@@ -179,7 +222,7 @@ const Groceries = () => {
                   </div>
 
                   <div className="p-4">
-                    <p className="text-xs uppercase tracking-wider text-neutral-500">{item.category}</p>
+                    <p className="text-xs uppercase tracking-wider text-neutral-500">{item.department}</p>
                     <h3 className="mt-1 text-base font-semibold text-neutral-900 cursor-pointer hover:underline" onClick={() => openProduct(item.id)}>
                       {item.name}
                     </h3>
@@ -200,7 +243,25 @@ const Groceries = () => {
                   </div>
                 </article>
               ))}
-            </div>
+              </div>
+            )}
+
+            {!loading && !error && filteredProducts.length === 0 && (
+              <div className="mt-8 rounded-2xl border border-dashed border-neutral-300 bg-white p-10 text-center text-neutral-600">
+                <p>No products match your selected filters.</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategory('All');
+                    setMinRating(0);
+                    setPriceLimit(priceRange.max || 0);
+                  }}
+                  className="mt-4 rounded-full bg-neutral-900 px-5 py-2 text-sm text-white hover:bg-neutral-700 transition"
+                >
+                  Reset Filters
+                </button>
+              </div>
+            )}
           </div>
         </section>
       </div>

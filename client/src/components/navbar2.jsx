@@ -7,7 +7,6 @@ import { clearAuthSession } from '../lib/auth';
 import { getCartCount, getFavouriteIds, SHOP_DATA_EVENT } from '../lib/shopStorage';
 
 const navbar2 = () => {
-  const [openDropdown, setOpenDropdown] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 1100);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -59,6 +58,17 @@ const navbar2 = () => {
 
   const navigate = useNavigate();
 
+  const handleLogout = () => {
+    const shouldLogout = window.confirm('Are you sure you want to log out?');
+    if (!shouldLogout) return;
+
+    clearAuthSession();
+    setProfileDropdownOpen(false);
+    setMobileMenuOpen(false);
+    navigate('/');
+    window.location.reload();
+  };
+
   return (
     <nav className="bg-white shadow-md fixed w-full top-0 z-50">
       <div className="mx-auto flex items-center justify-between w-full px-20 h-18">
@@ -92,6 +102,9 @@ const navbar2 = () => {
                     </button>
                     <button onClick={() => navigate('/product/groceries')} className="block w-full text-left px-4 py-2 text-gray-700 hover:text-[#007E5D] hover:bg-gray-100 text-sm transition-colors">
                       Groceries
+                    </button>
+                    <button onClick={() => navigate('/product/home-kitchen')} className="block w-full text-left px-4 py-2 text-gray-700 hover:text-[#007E5D] hover:bg-gray-100 text-sm transition-colors">
+                      Home & Kitchen
                     </button>
                     <button onClick={() => navigate('/product')} className="block w-full text-left px-4 py-2 text-gray-700 hover:text-[#007E5D] hover:bg-gray-100 text-sm transition-colors">
                       Clothing 
@@ -182,11 +195,7 @@ const navbar2 = () => {
                 </button>
                 <hr className="my-1" />
                 <button 
-                  onClick={() => {
-                    clearAuthSession();
-                    navigate('/');
-                    setProfileDropdownOpen(false);
-                  }}
+                  onClick={handleLogout}
                   className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 text-sm transition-colors">
                   Logout
                 </button>
@@ -237,6 +246,9 @@ const navbar2 = () => {
                     </button>
                     <button onClick={() => { navigate('/product/groceries'); setMobileMenuOpen(false); }} className="block text-left text-gray-600 hover:text-gray-900 text-sm py-1">
                       Groceries
+                    </button>
+                    <button onClick={() => { navigate('/product/home-kitchen'); setMobileMenuOpen(false); }} className="block text-left text-gray-600 hover:text-gray-900 text-sm py-1">
+                      Home & Kitchen
                     </button>
                     <button onClick={() => { navigate('/product'); setMobileMenuOpen(false); }} className="block text-left text-gray-600 hover:text-gray-900 text-sm py-1">
                       Clothing
@@ -296,12 +308,7 @@ const navbar2 = () => {
                   Help & Support
                 </button>
                 <button 
-                  onClick={() => {
-                    clearAuthSession();
-                    navigate('/');
-                    setProfileDropdownOpen(false);
-                    setMobileMenuOpen(false);
-                  }}
+                  onClick={handleLogout}
                   className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 text-sm transition-colors rounded"
                   >
                   Logout

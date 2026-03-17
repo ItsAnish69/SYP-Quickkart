@@ -2,12 +2,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Heart, ShoppingCart, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { allProducts } from '../data/products';
+import { fetchProducts } from '../lib/productsApi';
 import { SHOP_DATA_EVENT, addToCart, getFavouriteIds, toggleFavourite } from '../lib/shopStorage';
 
 const Favourite = () => {
   const navigate = useNavigate();
   const [favouriteIds, setFavouriteIds] = useState(() => getFavouriteIds());
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -25,9 +26,22 @@ const Favourite = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const rows = await fetchProducts();
+        setProducts(rows);
+      } catch {
+        setProducts([]);
+      }
+    };
+
+    loadProducts();
+  }, []);
+
   const favouriteProducts = useMemo(
-    () => allProducts.filter((product) => favouriteIds.includes(product.id)),
-    [favouriteIds]
+    () => products.filter((product) => favouriteIds.includes(product.id)),
+    [favouriteIds, products]
   );
 
   const removeFromFavourites = (productId) => {
@@ -71,7 +85,7 @@ const Favourite = () => {
                   <img src={item.image} alt={item.name} className="h-60 w-full object-cover" />
                 </div>
                 <div className="p-4">
-                  <p className="text-xs uppercase tracking-wider text-neutral-500">{item.category}</p>
+                  <p className="text-xs uppercase tracking-wider text-neutral-500">{item.department}</p>
                   <h3 className="mt-1 text-base font-semibold text-neutral-900">{item.name}</h3>
                   <div className="mt-2 flex items-center gap-2">
                     <span className="text-lg font-semibold text-neutral-900">${item.price}</span>

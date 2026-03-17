@@ -17,6 +17,9 @@ const Topbar = ({ setSidebarOpen }) => {
   const profileRef = useRef(null);
 
   const handleLogout = () => {
+    const shouldLogout = window.confirm('Are you sure you want to log out?');
+    if (!shouldLogout) return;
+
     clearAuthSession();
     navigate('/');
   };

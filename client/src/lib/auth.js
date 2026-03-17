@@ -39,3 +39,21 @@ export const isLoggedInWithValidSession = () => {
 
   return valid;
 };
+
+export const getAuthUser = () => {
+  try {
+    const raw = localStorage.getItem(AUTH_USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
+export const isAuthenticated = () => isLoggedInWithValidSession();
+
+export const isAdminUser = () => {
+  if (!isAuthenticated()) return false;
+
+  const user = getAuthUser();
+  return String(user?.role || '').toLowerCase() === 'admin';
+};

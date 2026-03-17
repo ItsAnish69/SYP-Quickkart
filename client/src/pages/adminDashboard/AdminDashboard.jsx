@@ -4,6 +4,8 @@ import Topbar from './Topbar';
 import DashboardContent from './DashboardContent';
 import ProductsPage from './ProductsPage';
 import CategoriesPage from './CategoriesPage';
+import ReviewsPage from './ReviewsPage';
+import DeliveryTrackingPage from './DeliveryTrackingPage';
 import {
   ShoppingBag, BoxIcon, Tags, Users,
   Warehouse, Truck, BarChart3, Star, Settings
@@ -61,7 +63,9 @@ const AdminDashboard = () => {
         {activeMenu === 'dashboard' && <DashboardContent />}
         {activeMenu === 'products' && <ProductsPage />}
         {activeMenu === 'categories' && <CategoriesPage />}
-        {!['dashboard', 'products', 'categories'].includes(activeMenu) && <EmptyPage pageKey={activeMenu} />}
+        {activeMenu === 'reviews' && <ReviewsPage />}
+        {activeMenu === 'delivery' && <DeliveryTrackingPage />}
+        {!['dashboard', 'products', 'categories', 'reviews', 'delivery'].includes(activeMenu) && <EmptyPage pageKey={activeMenu} />}
       </div>
     </div>
   );

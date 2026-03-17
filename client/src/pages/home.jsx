@@ -1,191 +1,47 @@
-import { useEffect, useState } from "react";
-import { Heart, Star, ShoppingCart, Package, ArrowRight, Mail } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import { Heart, Star, ShoppingCart, Package, ArrowRight } from "lucide-react";
+import HomeReviewsSection from "../components/HomeReviewsSection";
+import { fetchProducts } from '../lib/productsApi';
 
 const Home = () => {
   const [likedProducts, setLikedProducts] = useState({});
+  const [products, setProducts] = useState([]);
+  const navigate = useNavigate();
+  const recentlyViewedRef = useRef(null);
 
   const categories = [
     {
       id: 1,
-      name: "Beauty Picks",
-      image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop",
+      name: "Clothing",
+      link: '/product',
+      image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400&h=400&fit=crop',
     },
     {
       id: 2,
-      name: "Computers & Accessories",
-      image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=400&fit=crop",
+      name: "Electronics",
+      link: '/product/electronics',
+      image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=400&fit=crop',
     },
     {
       id: 3,
-      name: "Video Games",
-      image: "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=400&h=400&fit=crop",
+      name: "Groceries",
+      link: '/product/groceries',
+      image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=400&fit=crop',
     },
     {
       id: 4,
-      name: "Toys & Games",
-      image: "https://images.unsplash.com/photo-1558060370-d644479cb6f7?w=400&h=400&fit=crop",
+      name: "Home & Kitchen",
+      link: '/product/home-kitchen',
+      image: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=400&h=400&fit=crop',
     },
   ];
 
   const quickLinks = [
-    { label: "Recommendations for you", icon: "🎁" },
-    { label: "Your Orders", icon: "📦" },
-    { label: "Electronics\nBig Sale 20%", icon: "🔌" },
-    { label: "Home & Kitchen\nBig Sale 30%", icon: "🏠" },
-  ];
-
-  const recentProducts = [
-    {
-      id: 1,
-      name: "Puma AMS TIl BOOT VTG Black Men",
-      price: "$150.99",
-      image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop",
-      rating: 4.5,
-      reviews: 205,
-      tag: "Ships worldwide",
-    },
-    {
-      id: 2,
-      name: "Nike Air Max Light Red Sneakers",
-      price: "$86.00",
-      image: "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=300&h=300&fit=crop",
-      rating: 4.3,
-      reviews: 150,
-      tag: "Ships worldwide",
-    },
-    {
-      id: 3,
-      name: "Adidas Fusion Storm Armor",
-      price: "$79.97",
-      image: "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=300&h=300&fit=crop",
-      rating: 4.7,
-      reviews: 89,
-      tag: "Ships worldwide",
-    },
-    {
-      id: 4,
-      name: "Nike Charlitown Pure Running Shoes",
-      price: "$68.99",
-      image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=300&h=300&fit=crop",
-      rating: 4.6,
-      reviews: 432,
-      tag: "Sale",
-      saleTag: true,
-    },
-    {
-      id: 5,
-      name: "Adidas Alpha Bounce Running Shoe",
-      price: "$59.94",
-      originalPrice: "$82.71",
-      image: "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=300&h=300&fit=crop",
-      rating: 4.4,
-      reviews: 167,
-      tag: "Ships worldwide",
-    },
-  ];
-
-  const topSellers = [
-    {
-      id: 6,
-      name: "Lightning to USB Cable",
-      price: "$15.99",
-      image: "https://images.unsplash.com/photo-1621540489099-981a58a6b580?w=300&h=300&fit=crop",
-      rating: 4.5,
-      reviews: 1200,
-      tag: "Free shipping",
-    },
-    {
-      id: 7,
-      name: "SpaceTech D-Series 24\" Smart TV",
-      price: "$129.97",
-      originalPrice: "$199.99",
-      image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=300&h=300&fit=crop",
-      rating: 4.6,
-      reviews: 856,
-      tag: "Ships worldwide",
-    },
-    {
-      id: 8,
-      name: "Instant Pot Duo 7-in-1 Electric Cooker",
-      price: "$79.00",
-      originalPrice: "$99.95",
-      image: "https://images.unsplash.com/photo-1585515320310-259814833e62?w=300&h=300&fit=crop",
-      rating: 4.8,
-      reviews: 2341,
-      tag: "Ships worldwide",
-    },
-    {
-      id: 9,
-      name: "Philips Electric Grooming Kit",
-      price: "$24.99",
-      originalPrice: "$39.95",
-      image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop",
-      rating: 4.3,
-      reviews: 567,
-      tag: "Ships worldwide",
-    },
-    {
-      id: 10,
-      name: "Goodwin Stackable Frying Pan 12\"",
-      price: "$59.94",
-      originalPrice: "$111.71",
-      image: "https://images.unsplash.com/photo-1574269909862-7e3d7bc4e317?w=300&h=300&fit=crop",
-      rating: 4.5,
-      reviews: 334,
-      tag: "Ships worldwide",
-    },
-  ];
-
-  const mustHaveProducts = [
-    {
-      id: 11,
-      name: "Xiaomi Mi Bluetooth Mouse Silent",
-      price: "$20.99",
-      image: "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=300&h=300&fit=crop",
-      rating: 4.4,
-      reviews: 120,
-      tag: "Ships worldwide",
-    },
-    {
-      id: 12,
-      name: "Instant Pot Duo 7-In-1 Electric Cooker",
-      price: "$400.60",
-      image: "https://images.unsplash.com/photo-1585515320310-259814833e62?w=300&h=300&fit=crop",
-      rating: 4.8,
-      reviews: 890,
-      tag: "Ships worldwide",
-    },
-    {
-      id: 13,
-      name: "Razer Man O'War 7.1 Headphone",
-      price: "$45.45",
-      originalPrice: "$63.90",
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop",
-      rating: 4.6,
-      reviews: 445,
-      tag: "Sale",
-      saleTag: true,
-    },
-    {
-      id: 14,
-      name: "Bluetooth Earbuds Gt 10080",
-      price: "$20.50",
-      originalPrice: "$33.80",
-      image: "https://images.unsplash.com/photo-1590658268037-6bf12f032f1f?w=300&h=300&fit=crop",
-      rating: 4.2,
-      reviews: 223,
-      tag: "Ships worldwide",
-    },
-    {
-      id: 15,
-      name: "Wireless Headphones MaxPro True",
-      price: "$67.00",
-      originalPrice: "$120.00",
-      image: "https://images.unsplash.com/photo-1613040809024-b4ef7ba99bc3?w=300&h=300&fit=crop",
-      rating: 4.7,
-      reviews: 678,
-      tag: "Ships worldwide",
-    },
+    { label: "Recommendations for you", icon: "🎁", action: 'recent' },
+    { label: "Your Orders", icon: "📦", action: 'orders' },
+    { label: "Electronics\nBig Sale 20%", icon: "🔌", action: 'electronics' },
+    { label: "Home & Kitchen\nBig Sale 30%", icon: "🏠", action: 'home-kitchen' },
   ];
 
   const categoryStrip = [
@@ -199,12 +55,61 @@ const Home = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const rows = await fetchProducts();
+        setProducts(rows);
+      } catch {
+        setProducts([]);
+      }
+    };
+
+    loadProducts();
+  }, []);
+
+  const shuffledProducts = useMemo(() => {
+    return [...products].sort(() => Math.random() - 0.5);
+  }, [products]);
+
+  const recentProducts = useMemo(() => shuffledProducts.slice(0, 5), [shuffledProducts]);
+  const topSellers = useMemo(() => shuffledProducts.slice(5, 10), [shuffledProducts]);
+
   const toggleLike = (id) => {
     setLikedProducts((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  const openProduct = (productId) => {
+    window.scrollTo(0, 0);
+    navigate(`/product/${productId}`);
+  };
+
+  const handleQuickLinkClick = (action) => {
+    if (action === 'recent') {
+      recentlyViewedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    if (action === 'orders') {
+      navigate('/orders');
+      return;
+    }
+
+    if (action === 'electronics') {
+      navigate('/product/electronics');
+      return;
+    }
+
+    if (action === 'home-kitchen') {
+      navigate('/product/home-kitchen');
+    }
+  };
+
   const ProductCard = ({ product }) => (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer border border-gray-100">
+    <div
+      className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer border border-gray-100"
+      onClick={() => openProduct(product.id)}
+    >
       <div className="relative overflow-hidden h-52 bg-gray-50 flex items-center justify-center p-4">
         <img
           src={product.image}
@@ -253,9 +158,9 @@ const Home = () => {
           <span className="text-xs text-gray-400 ml-1">{product.reviews}</span>
         </div>
         <div className="flex items-baseline gap-2">
-          <span className="text-lg font-bold text-gray-900">{product.price}</span>
-          {product.originalPrice && (
-            <span className="text-sm text-gray-400 line-through">{product.originalPrice}</span>
+          <span className="text-lg font-bold text-gray-900">${Number(product.price || 0).toFixed(2)}</span>
+          {product.oldPrice !== null && product.oldPrice !== undefined && (
+            <span className="text-sm text-gray-400 line-through">${Number(product.oldPrice).toFixed(2)}</span>
           )}
         </div>
       </div>
@@ -326,6 +231,7 @@ const Home = () => {
             {quickLinks.map((link, i) => (
               <div
                 key={i}
+                onClick={() => handleQuickLinkClick(link.action)}
                 className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3 cursor-pointer hover:bg-gray-100 transition-colors"
               >
                 <span className="text-2xl">{link.icon}</span>
@@ -355,7 +261,7 @@ const Home = () => {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {categories.map((cat) => (
-              <div key={cat.id} className="group cursor-pointer">
+              <div key={cat.id} className="group cursor-pointer" onClick={() => navigate(cat.link)}>
                 <div className="relative overflow-hidden rounded-2xl bg-gray-100 h-48 md:h-56 mb-3">
                   <img
                     src={cat.image}
@@ -444,7 +350,7 @@ const Home = () => {
       </section>
 
       {/* Recently Viewed */}
-      <section className="py-10 bg-gray-50">
+      <section ref={recentlyViewedRef} className="py-10 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -546,29 +452,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Must Have For You */}
-      <section className="py-10 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Discover</p>
-              <h2 className="text-2xl font-bold text-gray-900">This must have for you 🔥</h2>
-            </div>
-            <a
-              href="/product"
-              className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors flex items-center gap-1"
-            >
-              View more <ArrowRight size={14} />
-            </a>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5">
-            {mustHaveProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Category Strip */}
       <section className="py-6 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -590,36 +473,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Newsletter Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#faf8f5] rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="max-w-md">
-              <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Discover Quickkart</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
-                SUBSCRIBE TO THE
-                <br />NEWS
-              </h2>
-              <p className="text-gray-500 mb-6 text-sm md:text-base">
-                Be aware of all discounts and bargains! Don't miss your benefit 🎉
-              </p>
-              <div className="flex gap-2">
-                <input
-                  type="email"
-                  placeholder="Your email address"
-                  className="flex-1 px-5 py-3 rounded-full border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm"
-                />
-                <button className="bg-amber-400 hover:bg-amber-500 text-gray-900 font-semibold px-6 py-3 rounded-full transition-colors text-sm whitespace-nowrap">
-                  Subscribe
-                </button>
-              </div>
-            </div>
-            <div className="flex-shrink-0 hidden md:block">
-              <Mail size={120} className="text-amber-400" strokeWidth={1} />
-            </div>
-          </div>
-        </div>
-      </section>
+      <HomeReviewsSection />
     </>
   );
 };

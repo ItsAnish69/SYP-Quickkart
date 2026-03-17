@@ -52,6 +52,7 @@ const Navbar = () => {
                   <div className="absolute left-0 mt-2 w-48 bg-white rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 z-10 border border-gray-100">
                     <button onClick={() => navigate('/product/electronics')} className="block w-full text-left px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 text-sm">Electronics</button>
                     <button onClick={() => navigate('/product/groceries')} className="block w-full text-left px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 text-sm">Groceries</button>
+                    <button onClick={() => navigate('/product/home-kitchen')} className="block w-full text-left px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 text-sm">Home & Kitchen</button>
                     <button onClick={() => navigate('/product')} className="block w-full text-left px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 text-sm">Clothing</button>
                   </div>
                 )}

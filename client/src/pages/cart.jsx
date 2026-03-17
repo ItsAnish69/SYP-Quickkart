@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { allProducts } from '../data/products';
+import { fetchProducts } from '../lib/productsApi';
 import {
   SHOP_DATA_EVENT,
   clearCart,
@@ -14,6 +14,7 @@ import {
 const Cart = () => {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState(() => getCartItems());
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -31,15 +32,28 @@ const Cart = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const rows = await fetchProducts();
+        setProducts(rows);
+      } catch {
+        setProducts([]);
+      }
+    };
+
+    loadProducts();
+  }, []);
+
   const itemsWithDetails = useMemo(
     () =>
       cartItems
         .map((item) => {
-          const product = allProducts.find((entry) => entry.id === item.id);
+          const product = products.find((entry) => entry.id === item.id);
           return product ? { ...product, quantity: item.quantity } : null;
         })
         .filter(Boolean),
-    [cartItems]
+    [cartItems, products]
   );
 
   const total = useMemo(
@@ -107,7 +121,7 @@ const Cart = () => {
                   <div>
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-xs uppercase tracking-wider text-neutral-500">{item.category}</p>
+                        <p className="text-xs uppercase tracking-wider text-neutral-500">{item.department}</p>
                         <h3 className="text-base font-semibold text-neutral-900">{item.name}</h3>
                       </div>
                       <button
@@ -168,6 +182,7 @@ const Cart = () => {
 
               <button
                 type="button"
+                onClick={() => navigate('/payment')}
                 className="mt-5 w-full rounded-lg bg-neutral-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-neutral-700"
               >
                 Proceed to Checkout

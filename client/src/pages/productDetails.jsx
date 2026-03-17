@@ -1,16 +1,17 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Heart, MapPin, Star, ChevronDown, ShoppingCart } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { getProductById } from '../data/products';
 import { addToCart, getFavouriteIds, toggleFavourite } from '../lib/shopStorage';
+import { fetchProductById } from '../lib/productsApi';
 
 const sizes = ['6', '8', '10', '12', '14', '16', '18', '20', '22'];
 
 const ProductDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const product = useMemo(() => getProductById(id), [id]);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState('6');
   const [activeTab, setActiveTab] = useState('details');
@@ -21,6 +22,19 @@ const ProductDetails = () => {
     setActiveImage(0);
     setSelectedSize('6');
     setActiveTab('details');
+
+    const loadProduct = async () => {
+      try {
+        const row = await fetchProductById(id);
+        setProduct(row);
+      } catch {
+        setProduct(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProduct();
   }, [id]);
 
   useEffect(() => {
@@ -37,6 +51,16 @@ const ProductDetails = () => {
     setIsWishlisted(added);
     toast.success(added ? 'Added to favourites' : 'Removed from favourites');
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f4f4f4] pt-28 pb-16 px-4">
+        <div className="max-w-5xl mx-auto bg-white rounded-2xl border border-gray-200 p-8 text-center">
+          <p className="text-gray-500">Loading product...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -57,6 +81,7 @@ const ProductDetails = () => {
   }
 
   const images = product.images?.length ? product.images : [product.image, product.image, product.image];
+  const showSizeSelector = product.department === 'clothing';
 
   const reviews = [
     {
@@ -78,7 +103,7 @@ const ProductDetails = () => {
       <div className="max-w-[1100px] mx-auto px-4">
         <div className="bg-white border border-gray-200 rounded-xl p-6 lg:p-8">
           <div className="text-xs text-gray-500 mb-6">
-            Home / {product.category} / {product.name}
+            Home / {product.department} / {product.name}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-8">
@@ -116,7 +141,9 @@ const ProductDetails = () => {
 
               <div className="mt-3 flex items-center gap-2">
                 <span className="text-3xl font-bold text-gray-800">${product.price.toFixed(2)}</span>
-                <span className="text-xl text-gray-400 line-through">${product.oldPrice.toFixed(2)}</span>
+                {product.oldPrice !== null && (
+                  <span className="text-xl text-gray-400 line-through">${product.oldPrice.toFixed(2)}</span>
+                )}
               </div>
 
               <div className="mt-6 flex items-center justify-between border-b border-gray-200 pb-3 text-sm">
@@ -124,22 +151,24 @@ const ProductDetails = () => {
                 <ChevronDown size={16} className="text-gray-500" />
               </div>
 
-              <div className="mt-4">
-                <div className="text-sm text-gray-600 mb-2">Size: {selectedSize}</div>
-                <div className="grid grid-cols-9 gap-1.5">
-                  {sizes.map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`h-8 text-xs border rounded ${
-                        selectedSize === size ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300'
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
+              {showSizeSelector && (
+                <div className="mt-4">
+                  <div className="text-sm text-gray-600 mb-2">Size: {selectedSize}</div>
+                  <div className="grid grid-cols-9 gap-1.5">
+                    {sizes.map((size) => (
+                      <button
+                        key={size}
+                        onClick={() => setSelectedSize(size)}
+                        className={`h-8 text-xs border rounded ${
+                          selectedSize === size ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300'
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="mt-6 grid grid-cols-[1fr_auto] gap-3">
                 <button onClick={handleAddToCart} className="h-12 bg-black text-white rounded font-medium hover:opacity-90 transition inline-flex items-center justify-center gap-2">

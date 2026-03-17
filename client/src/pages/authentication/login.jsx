@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { ShoppingCart, Eye, EyeOff} from 'lucide-react'
 import LoginSvg from '../../img/authenticationImg/login.png';
 import { setAuthSession } from '../../lib/auth';
+import { hydrateCartFromBackend } from '../../lib/shopStorage';
 
 const login = () => {
   const [showPassword, setShowPassword] = useState(false); 
@@ -29,6 +30,7 @@ const login = () => {
         // Store session with a 3-day expiry
         if (response.data.token) {
           setAuthSession(response.data.token, response.data.user || {});
+          await hydrateCartFromBackend();
         }
 
         setTimeout(() => {

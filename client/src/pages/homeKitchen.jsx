@@ -7,9 +7,9 @@ import { fetchProducts } from '../lib/productsApi';
 
 const ratingOptions = [4, 3, 2];
 
-const Electronics = () => {
+const HomeKitchen = () => {
   const navigate = useNavigate();
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedDepartment, setSelectedDepartment] = useState('All');
   const [priceLimit, setPriceLimit] = useState(0);
   const [minRating, setMinRating] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
@@ -26,7 +26,7 @@ const Electronics = () => {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const rows = await fetchProducts('electronics');
+        const rows = await fetchProducts('home-kitchen');
         setProducts(rows);
 
         const numericPrices = rows
@@ -49,19 +49,19 @@ const Electronics = () => {
     loadProducts();
   }, []);
 
-  const categories = useMemo(
-    () => ['All', ...new Set(products.map((item) => item.category).filter(Boolean))],
+  const departmentOptions = useMemo(
+    () => ['All', ...new Set(products.map((item) => item.department).filter(Boolean))],
     [products]
   );
 
   const filteredProducts = useMemo(() => {
     return products.filter((item) => {
-      const categoryMatch = selectedCategory === 'All' ? true : item.category === selectedCategory;
+      const departmentMatch = selectedDepartment === 'All' ? true : item.department === selectedDepartment;
       const priceMatch = priceRange.max === 0 ? true : item.price <= priceLimit;
       const ratingMatch = item.rating >= minRating;
-      return categoryMatch && priceMatch && ratingMatch;
+      return departmentMatch && priceMatch && ratingMatch;
     });
-  }, [selectedCategory, priceLimit, minRating, products]);
+  }, [selectedDepartment, priceLimit, minRating, products, priceRange.max]);
 
   const openProduct = (productId) => {
     window.scrollTo(0, 0);
@@ -83,27 +83,27 @@ const Electronics = () => {
   return (
     <div className="bg-[#f8f8f6] min-h-screen pt-24 pb-14">
       <div className="mx-auto max-w-[1300px] px-4 sm:px-6 lg:px-10">
-        <section className="relative overflow-hidden rounded-3xl bg-linear-to-r from-[#e5edf9] via-[#f2f6ff] to-[#e8eef9] px-6 py-10 sm:px-10 lg:px-14 lg:py-14 shadow-[0_16px_40px_rgba(0,0,0,0.08)]">
+        <section className="relative overflow-hidden rounded-3xl bg-linear-to-r from-[#f7efe6] via-[#fbf6f0] to-[#f4e9dc] px-6 py-10 sm:px-10 lg:px-14 lg:py-14 shadow-[0_16px_40px_rgba(0,0,0,0.08)]">
           <div className="relative z-10 grid gap-8 lg:grid-cols-[1.3fr_1fr] items-center">
             <div>
-              <p className="text-xs tracking-[0.3em] uppercase text-neutral-600 mb-3">Electronics Collection</p>
+              <p className="text-xs tracking-[0.3em] uppercase text-neutral-600 mb-3">Home & Kitchen Collection</p>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-neutral-900 leading-tight">
-                Upgrade Your Setup
-                <span className="block italic font-light">Smart Tech, Better Life</span>
+                Upgrade Your Home
+                <span className="block italic font-light">Essentials With Style</span>
               </h1>
               <p className="mt-4 text-neutral-600 max-w-xl leading-relaxed">
-                Discover high-performance devices built for productivity, entertainment, and modern everyday use.
+                Discover practical, beautiful products for your home and kitchen with quality you can trust.
               </p>
               <button className="mt-7 inline-flex items-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-700">
-                Browse Electronics
+                Browse Home & Kitchen
                 <ShoppingBag size={16} />
               </button>
             </div>
 
             <div className="hidden lg:flex justify-end">
               <img
-                src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=900&q=80"
-                alt="Electronics banner"
+                src="https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=900&q=80"
+                alt="Home and kitchen banner"
                 className="h-[280px] w-[380px] rounded-2xl object-cover shadow-[0_14px_28px_rgba(0,0,0,0.14)]"
               />
             </div>
@@ -123,20 +123,20 @@ const Electronics = () => {
 
             <div className={`${showFilters ? 'block' : 'hidden'} lg:block space-y-7`}>
               <div>
-                <h2 className="text-sm font-semibold tracking-wide text-neutral-900 uppercase mb-4">Category</h2>
+                <h2 className="text-sm font-semibold tracking-wide text-neutral-900 uppercase mb-4">Department</h2>
                 <div className="space-y-2.5">
-                  {categories.map((category) => (
+                  {departmentOptions.map((department) => (
                     <button
-                      key={category}
+                      key={department}
                       type="button"
-                      onClick={() => setSelectedCategory(category)}
+                      onClick={() => setSelectedDepartment(department)}
                       className={`w-full rounded-lg px-3 py-2.5 text-left text-sm transition ${
-                        selectedCategory === category
+                        selectedDepartment === department
                           ? 'bg-neutral-900 text-white shadow-md'
                           : 'text-neutral-700 hover:bg-neutral-100'
                       }`}
                     >
-                      {category}
+                      {department}
                     </button>
                   ))}
                 </div>
@@ -193,7 +193,7 @@ const Electronics = () => {
           <div>
             <div className="mb-5 flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-semibold text-neutral-900">Electronics</h2>
+                <h2 className="text-2xl font-semibold text-neutral-900">Home & Kitchen</h2>
                 <p className="text-sm text-neutral-500 mt-1">{filteredProducts.length} items found</p>
               </div>
             </div>
@@ -208,41 +208,43 @@ const Electronics = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {filteredProducts.map((item) => (
-                <article key={item.id} className="group rounded-2xl bg-white border border-neutral-200/70 shadow-[0_8px_24px_rgba(0,0,0,0.05)] overflow-hidden transition hover:-translate-y-1 hover:shadow-[0_14px_30px_rgba(0,0,0,0.12)]">
-                  <div className="relative overflow-hidden cursor-pointer" onClick={() => openProduct(item.id)}>
-                    <img src={item.image} alt={item.name} className="h-64 w-full object-cover transition duration-500 group-hover:scale-105" />
-                    <button
-                      type="button"
-                      onClick={(event) => handleToggleFavourite(event, item.id)}
-                      className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-white/90 text-neutral-700 shadow transition hover:bg-white hover:text-red-500"
-                    >
-                      <Heart size={16} className={favourites.includes(item.id) ? 'fill-red-500 text-red-500' : ''} />
-                    </button>
-                  </div>
-
-                  <div className="p-4">
-                    <p className="text-xs uppercase tracking-wider text-neutral-500">{item.department}</p>
-                    <h3 className="mt-1 text-base font-semibold text-neutral-900 cursor-pointer hover:underline" onClick={() => openProduct(item.id)}>
-                      {item.name}
-                    </h3>
-                    <div className="mt-2 flex items-center gap-1.5 text-amber-500">
-                      <Star size={15} className="fill-current" />
-                      <span className="text-sm font-medium text-neutral-700">{item.rating}</span>
-                      <span className="text-sm text-neutral-500">({item.reviews})</span>
-                    </div>
-                    <div className="mt-4 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-semibold text-neutral-900">${item.price}</span>
-                        <span className="text-sm text-neutral-400 line-through">${item.oldPrice}</span>
-                      </div>
-                      <button type="button" onClick={() => handleAddToCart(item.id)} className="rounded-full border border-neutral-900 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-900 transition hover:bg-neutral-900 hover:text-white">
-                        Add to Cart
+                {filteredProducts.map((item) => (
+                  <article key={item.id} className="group rounded-2xl bg-white border border-neutral-200/70 shadow-[0_8px_24px_rgba(0,0,0,0.05)] overflow-hidden transition hover:-translate-y-1 hover:shadow-[0_14px_30px_rgba(0,0,0,0.12)]">
+                    <div className="relative overflow-hidden cursor-pointer" onClick={() => openProduct(item.id)}>
+                      <img src={item.image} alt={item.name} className="h-64 w-full object-cover transition duration-500 group-hover:scale-105" />
+                      <button
+                        type="button"
+                        onClick={(event) => handleToggleFavourite(event, item.id)}
+                        className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-white/90 text-neutral-700 shadow transition hover:bg-white hover:text-red-500"
+                      >
+                        <Heart size={16} className={favourites.includes(item.id) ? 'fill-red-500 text-red-500' : ''} />
                       </button>
                     </div>
-                  </div>
-                </article>
-              ))}
+
+                    <div className="p-4">
+                      <p className="text-xs uppercase tracking-wider text-neutral-500">{item.department}</p>
+                      <h3 className="mt-1 text-base font-semibold text-neutral-900 cursor-pointer hover:underline" onClick={() => openProduct(item.id)}>
+                        {item.name}
+                      </h3>
+                      <div className="mt-2 flex items-center gap-1.5 text-amber-500">
+                        <Star size={15} className="fill-current" />
+                        <span className="text-sm font-medium text-neutral-700">{item.rating}</span>
+                        <span className="text-sm text-neutral-500">({item.reviews})</span>
+                      </div>
+                      <div className="mt-4 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-semibold text-neutral-900">${item.price}</span>
+                          {item.oldPrice !== null && (
+                            <span className="text-sm text-neutral-400 line-through">${item.oldPrice}</span>
+                          )}
+                        </div>
+                        <button type="button" onClick={() => handleAddToCart(item.id)} className="rounded-full border border-neutral-900 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-900 transition hover:bg-neutral-900 hover:text-white">
+                          Add to Cart
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                ))}
               </div>
             )}
 
@@ -252,7 +254,7 @@ const Electronics = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    setSelectedCategory('All');
+                    setSelectedDepartment('All');
                     setMinRating(0);
                     setPriceLimit(priceRange.max || 0);
                   }}
@@ -269,4 +271,4 @@ const Electronics = () => {
   );
 };
 
-export default Electronics;
+export default HomeKitchen;
