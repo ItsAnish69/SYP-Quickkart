@@ -6,6 +6,7 @@ import ProductsPage from './ProductsPage';
 import CategoriesPage from './CategoriesPage';
 import ReviewsPage from './ReviewsPage';
 import DeliveryTrackingPage from './DeliveryTrackingPage';
+import AdminProfilePage from './AdminProfilePage';
 import {
   ShoppingBag, BoxIcon, Tags, Truck, Star
 } from 'lucide-react';
@@ -61,7 +62,8 @@ const AdminDashboard = () => {
         {activeMenu === 'categories' && <CategoriesPage />}
         {activeMenu === 'reviews' && <ReviewsPage />}
         {activeMenu === 'delivery' && <DeliveryTrackingPage />}
-        {!['dashboard', 'orders', 'products', 'categories', 'reviews', 'delivery'].includes(activeMenu) && <EmptyPage pageKey={activeMenu} />}
+        {activeMenu === 'profile' && <AdminProfilePage />}
+        {!['dashboard', 'orders', 'products', 'categories', 'reviews', 'delivery', 'profile'].includes(activeMenu) && <EmptyPage pageKey={activeMenu} />}
       </div>
     </div>
   );

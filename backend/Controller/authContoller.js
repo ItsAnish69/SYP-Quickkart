@@ -3,10 +3,14 @@ import db from '../config/db.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import * as mail from '../utils/mailer.js';
+import { getServerSessionMeta } from '../utils/serverSession.js';
 dotenv.config();
 
-const STATIC_ADMIN_EMAIL = 'admin123@gmail.com';
-const STATIC_ADMIN_PASSWORD = '12345';
+const ALLOWED_ROLES = ['user', 'admin'];
+const normalizeRole = (roleValue) => {
+    const role = String(roleValue || 'user').toLowerCase();
+    return ALLOWED_ROLES.includes(role) ? role : 'user';
+};
 
 //user register
 const registerUser = async (req, res) =>{
@@ -17,7 +21,7 @@ const registerUser = async (req, res) =>{
             return res.status(500).json({message: "Please, Fill all the credentials!"})
         }
 
-        const normalizedRole = String(role || 'user').toLowerCase() === 'admin' ? 'admin' : 'user';
+        const normalizedRole = normalizeRole(role);
 
         //check for the user in DB
         db.query("SELECT * FROM users WHERE email = ?", [email], async(err, result) =>{
@@ -64,31 +68,11 @@ const registerUser = async (req, res) =>{
 const loginUser = async(req, res) =>{
     //check user data and missing fields
     try{
-        const {email, password} = req.body;
-        if(!email || !password){
-            return res.status(400).json({message: "Please, Fill both credentials!"})
+        const {email, password, role} = req.body;
+        if(!email || !password || !role){
+            return res.status(400).json({message: "Please provide email, password and role!"})
         }
-
-        // Static admin credentials for direct admin dashboard access
-        if (email === STATIC_ADMIN_EMAIL && password === STATIC_ADMIN_PASSWORD) {
-            const token = jwt.sign(
-                {id: 0, email: STATIC_ADMIN_EMAIL, role: 'admin'},
-                process.env.JWT_SECRET,
-                {expiresIn : '24h'}
-            );
-
-            return res.json({
-                success: true,
-                message: "Login Successfull",
-                token: token,
-                user: {
-                    id: 0,
-                    name: 'Admin',
-                    email: STATIC_ADMIN_EMAIL,
-                    role: 'admin'
-                }
-            });
-        }
+        const selectedRole = normalizeRole(role);
 
         //check for the user in the database
         db.query("SELECT * FROM users WHERE email = ?", [email], async(err, result) => {
@@ -106,9 +90,14 @@ const loginUser = async(req, res) =>{
                 return res.status(401).json({message: "Invalid Password"});
             }
 
+            const storedRole = normalizeRole(user.role);
+            if (selectedRole !== storedRole) {
+                return res.status(403).json({message: `This account is registered as ${storedRole}. Please select ${storedRole} role to continue.`});
+            }
+
             //create jwt token upon correct password
             const token = jwt.sign(
-                {id: user.id, email: user.email},
+                {id: user.id, email: user.email, role: storedRole},
                 process.env.JWT_SECRET,
                 {expiresIn : '24h'}
             );
@@ -117,11 +106,12 @@ const loginUser = async(req, res) =>{
                 success: true,
                 message: "Login Successfull",
                 token: token,
+                ...getServerSessionMeta(),
                 user: {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                role: user.role || 'user'
+                role: storedRole
             }
             })
         })
@@ -130,5 +120,9 @@ const loginUser = async(req, res) =>{
     }
 };
 
+const getSessionMeta = (req, res) => {
+    return res.json(getServerSessionMeta());
+};
 
-export { registerUser, loginUser };
+
+export { registerUser, loginUser, getSessionMeta };

@@ -14,7 +14,12 @@ const queryAsync = (sql, values = []) =>
 
 const runSqlFile = async (filePath, label) => {
     const sql = fs.readFileSync(filePath, 'utf8');
-    const statements = sql.split(';').filter((stmt) => stmt.trim());
+    const withoutLineComments = sql
+        .split('\n')
+        .map((line) => line.replace(/--.*$/, ''))
+        .join('\n');
+
+    const statements = withoutLineComments.split(';').filter((stmt) => stmt.trim());
 
     if (!statements.length) {
         return;

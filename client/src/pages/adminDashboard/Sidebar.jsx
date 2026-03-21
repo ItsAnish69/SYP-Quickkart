@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   LayoutDashboard, ShoppingBag, BoxIcon, Tags,
-  Truck, Star, X, Zap
+  Truck, Star, X, Zap, ShieldCheck, UserCircle2
 } from 'lucide-react';
 
 const menuItems = [
@@ -37,7 +37,7 @@ const Sidebar = ({ activeMenu, setActiveMenu, sidebarOpen, setSidebarOpen }) => 
               <div className="w-10 h-10 bg-linear-to-br from-[#5B5FEF] to-[#7C7FFF] rounded-xl flex items-center justify-center text-white">
                 <Zap size={20} />
               </div>
-              <span className="text-xl font-bold text-gray-900 tracking-tight">QuickCart</span>
+              <span className="text-xl font-bold text-gray-900 tracking-tight">QuickKart</span>
             </div>
             <button
               className="md:hidden p-1 text-gray-400 hover:text-gray-600"
@@ -67,6 +67,42 @@ const Sidebar = ({ activeMenu, setActiveMenu, sidebarOpen, setSidebarOpen }) => 
               </button>
             ))}
           </nav>
+        </div>
+
+        {/* Bottom profile section */}
+        <div className="px-5 pb-6">
+          <div className="rounded-2xl bg-linear-to-br from-[#5B5FEF] via-[#6A63F7] to-[#7C7FFF] p-4 text-white shadow-[0_10px_28px_rgba(91,95,239,0.35)]">
+            <div className="flex items-center gap-3">
+              <img
+                src="https://ui-avatars.com/api/?name=Admin+User&background=ffffff&color=5B5FEF&size=80"
+                alt="Admin profile"
+                className="w-11 h-11 rounded-xl border border-white/50 object-cover"
+              />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold truncate">Admin User</p>
+                <p className="text-[0.72rem] text-white/85 truncate">admin@quickcart.com</p>
+              </div>
+            </div>
+
+            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/20 border border-white/30 px-2.5 py-1 text-[0.68rem] font-semibold tracking-wide uppercase">
+              <ShieldCheck size={12} /> Super Admin
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setActiveMenu('profile');
+                setSidebarOpen(false);
+              }}
+              className={`mt-3 w-full inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition border ${
+                activeMenu === 'profile'
+                  ? 'bg-white text-[#5B5FEF] border-white'
+                  : 'bg-white/10 text-white border-white/40 hover:bg-white/20'
+              }`}
+            >
+              <UserCircle2 size={16} /> Profile
+            </button>
+          </div>
         </div>
       </aside>
     </>

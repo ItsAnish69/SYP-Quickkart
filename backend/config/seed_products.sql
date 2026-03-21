@@ -1,5 +1,5 @@
 -- Seed products for clothing, electronics, and groceries.
--- Safe for repeated runs; each row checks existence by (name, department).
+-- Safe for repeated runs, each row checks existence by (name, department).
 
 INSERT INTO products (department, name, price, old_price, rating, reviews_count, color, image_url, images_json, description)
 SELECT 'clothing', 'Classic Linen Shirt', 49.00, 69.00, 4.80, 128, 'Black',

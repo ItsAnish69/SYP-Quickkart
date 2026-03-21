@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import { Search, Bell, ShoppingCart, ChevronDown, Menu, Box, Truck, AlertTriangle } from 'lucide-react';
+import { Search, Bell, ChevronDown, Menu, UserPlus, ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { clearAuthSession } from '../../lib/auth';
 
@@ -9,8 +9,8 @@ const Topbar = ({ setSidebarOpen }) => {
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifCount, setNotifCount] = useState(0);
-  const [orderCount, setOrderCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
+  const previousKpisRef = useRef({ totalOrders: null, totalCustomers: null });
   const notifRef = useRef(null);
   const profileRef = useRef(null);
 
@@ -27,20 +27,42 @@ const Topbar = ({ setSidebarOpen }) => {
       try {
         const response = await axios.get('http://localhost:5000/api/orders/overview');
         const data = response.data?.data || {};
-        const pending = Number(data?.kpis?.pendingDeliveries || 0);
-        const todayOrders = Number(data?.kpis?.todayOrders || 0);
-        const queue = Array.isArray(data?.deliveryQueue) ? data.deliveryQueue.slice(0, 3) : [];
+        const totalOrders = Number(data?.kpis?.totalOrders || 0);
+        const totalCustomers = Number(data?.kpis?.totalCustomers || 0);
 
-        setNotifCount(pending);
-        setOrderCount(todayOrders);
-        setNotifications(
-          queue.map((item) => ({
-            icon: item.delivery_status === 'out-for-delivery' ? Truck : Box,
-            color: item.delivery_status === 'out-for-delivery' ? 'text-[#6BD3D1]' : 'text-[#5B5FEF]',
-            msg: <>Order <strong>#{item.id}</strong> is {item.delivery_status}</>,
-            time: new Date(item.updated_at).toLocaleString(),
-          }))
-        );
+        setNotifications((prev) => {
+          const next = [...prev];
+          const previous = previousKpisRef.current;
+
+          const hasBaseline = previous.totalOrders !== null && previous.totalCustomers !== null;
+          if (hasBaseline) {
+            const newUsers = totalCustomers - previous.totalCustomers;
+            const newOrders = totalOrders - previous.totalOrders;
+
+            if (newUsers > 0) {
+              next.unshift({
+                icon: UserPlus,
+                color: 'text-emerald-600',
+                msg: <><strong>{newUsers}</strong> new user registration{newUsers > 1 ? 's' : ''}.</>,
+                time: new Date().toLocaleString(),
+              });
+            }
+
+            if (newOrders > 0) {
+              next.unshift({
+                icon: ShoppingBag,
+                color: 'text-[#5B5FEF]',
+                msg: <><strong>{newOrders}</strong> new order{newOrders > 1 ? 's' : ''} placed.</>,
+                time: new Date().toLocaleString(),
+              });
+            }
+          }
+
+          previousKpisRef.current = { totalOrders, totalCustomers };
+          const limited = next.slice(0, 12);
+          setNotifCount(limited.length);
+          return limited;
+        });
       } catch {
         setNotifCount(0);
       }
@@ -87,12 +109,6 @@ const Topbar = ({ setSidebarOpen }) => {
 
       {/* Right */}
       <div className="flex items-center gap-3 sm:gap-5">
-        {/* Cart */}
-        <div className="relative w-10 h-10 flex items-center justify-center rounded-[10px] bg-[#F5F6FA] text-gray-500 hover:bg-[rgba(91,95,239,0.08)] hover:text-[#5B5FEF] transition cursor-pointer">
-          <ShoppingCart size={18} />
-          {orderCount > 0 && <span className="absolute -top-1 -right-1 w-[18px] h-[18px] bg-red-500 text-white text-[0.65rem] font-bold rounded-full flex items-center justify-center border-2 border-white">{orderCount}</span>}
-        </div>
-
         {/* Notifications */}
         <div className="relative" ref={notifRef}>
           <div

@@ -25,7 +25,7 @@ import { Navigate, Routes, Route, useLocation, useNavigate } from 'react-router-
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { useEffect, useState } from 'react';
-import { isAdminUser, isAuthenticated, isLoggedInWithValidSession } from './lib/auth';
+import { isAdminUser, isAuthenticated, isLoggedInWithValidSession, syncSessionWithServer } from './lib/auth';
 import { hydrateCartFromBackend } from './lib/shopStorage';
 
 const LAST_VALID_PATH_KEY = 'lastValidPath';
@@ -51,6 +51,15 @@ const App = () => {
 
   useEffect(() => {
     setIsLoggedIn(isLoggedInWithValidSession());
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const validateSession = async () => {
+      const stillValid = await syncSessionWithServer();
+      setIsLoggedIn(stillValid && isLoggedInWithValidSession());
+    };
+
+    validateSession();
   }, [location.pathname]);
 
   useEffect(() => {

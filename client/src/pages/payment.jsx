@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { CreditCard, Lock } from 'lucide-react';
+import { CreditCard, Lock, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -16,11 +16,18 @@ const PAYMENT_OPTIONS = [
   { id: 'cash-on-delivery', label: 'Cash on Delivery', helper: 'Pay cash at doorstep' },
 ];
 
+const PROCESSING_STEPS = [
+  'Validating payment details',
+  'Securing transaction channel',
+  'Confirming your order',
+];
+
 const Payment = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [processingStepIndex, setProcessingStepIndex] = useState(0);
   const [error, setError] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('esewa');
 
@@ -57,6 +64,19 @@ const Payment = () => {
 
     loadProducts();
   }, [navigate]);
+
+  useEffect(() => {
+    if (!isSubmitting) {
+      setProcessingStepIndex(0);
+      return undefined;
+    }
+
+    const intervalId = setInterval(() => {
+      setProcessingStepIndex((prev) => (prev + 1) % PROCESSING_STEPS.length);
+    }, 900);
+
+    return () => clearInterval(intervalId);
+  }, [isSubmitting]);
 
   const itemsWithDetails = useMemo(
     () =>
@@ -140,7 +160,20 @@ const Payment = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f8f6] pt-24 pb-14">
+    <div className="min-h-screen bg-[#f8f8f6] pt-24 pb-14 relative">
+      {isSubmitting && (
+        <div className="fixed inset-0 z-50 bg-black/35 backdrop-blur-[2px] flex items-center justify-center px-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white border border-neutral-200 p-6 text-center shadow-[0_18px_48px_rgba(0,0,0,0.18)]">
+            <Loader2 size={34} className="mx-auto text-[#007E5D] animate-spin" />
+            <h2 className="mt-4 text-lg font-semibold text-neutral-900">Processing your transaction</h2>
+            <p className="mt-2 text-sm text-neutral-600">{PROCESSING_STEPS[processingStepIndex]}...</p>
+            <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-emerald-100">
+              <div className="h-full w-1/2 rounded-full bg-[#007E5D] animate-pulse" />
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
           <section className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-[0_8px_24px_rgba(0,0,0,0.05)]">
@@ -291,9 +324,18 @@ const Payment = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full mt-3 rounded-lg bg-[#007E5D] px-4 py-3 text-sm font-semibold text-white hover:bg-[#016B4F] transition disabled:opacity-60"
+                className="w-full mt-3 rounded-lg bg-[#007E5D] px-4 py-3 text-sm font-semibold text-white hover:bg-[#016B4F] transition disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
               >
-                {isSubmitting ? 'Processing Payment...' : paymentMethod === 'cash-on-delivery' ? 'Place COD Order' : `Pay $${total.toFixed(2)}`}
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Processing Payment...
+                  </>
+                ) : paymentMethod === 'cash-on-delivery' ? (
+                  'Place COD Order'
+                ) : (
+                  `Pay $${total.toFixed(2)}`
+                )}
               </button>
 
               <p className="text-xs text-gray-500 flex items-center gap-1 justify-center">

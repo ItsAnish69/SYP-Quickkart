@@ -112,22 +112,25 @@ export const aboutUs = () => {
   // Data for hero cards
   const heroCards = [
     {
-      title: "SEO Website Design",
-      description: "Expert Web designing for online sales to elevate your brand and reach more customers effectively.",
-      icon: "👨‍💻",
+      title: "Who We Are",
+      description: "We are a customer-first ecommerce team focused on making everyday shopping simple, trusted, and enjoyable.",
       number: "01",
+      image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=900&q=80",
+      alt: "Team planning and collaboration",
     },
     {
-      title: "SEO Website Design",
-      description: "Expert Web designing for online sales to elevate your brand and reach more customers effectively.",
-      icon: "👨‍💻",
+      title: "What We Offer",
+      description: "From groceries to electronics, we provide quality products, fair prices, and a smooth shopping experience in one place.",
       number: "02",
+      image: "https://images.unsplash.com/photo-1607082350899-7e105aa886ae?auto=format&fit=crop&w=900&q=80",
+      alt: "Affordable offers and pricing",
     },
     {
-      title: "Business Strategy",
-      description: "Get a strategy for growing an online business and expanding your network with experts in the industry.",
-      icon: "👩‍💼",
+      title: "Why People Trust Us",
+      description: "We combine reliable delivery, secure checkout, and responsive support to help every customer shop with confidence.",
       number: "03",
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=900&q=80",
+      alt: "Business growth promotion",
     },
   ];
 
@@ -234,8 +237,12 @@ export const aboutUs = () => {
                   )}
                   className="bg-white rounded-lg p-8 shadow-lg max-w-sm"
                 >
-                  <div className="mb-6 h-64 bg-gray-300 from-green-100 to-green-50 rounded-lg flex items-center justify-center">
-                    <div className="text-6xl">{heroCards[idx].icon}</div>
+                  <div className="mb-6 h-64 rounded-lg overflow-hidden">
+                    <img
+                      src={heroCards[idx].image}
+                      alt={heroCards[idx].alt}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <p className="text-gray-700 text-sm mb-3">{heroCards[idx].number}</p>
                   <h3 className="text-xl font-bold text-gray-900 mb-3">
