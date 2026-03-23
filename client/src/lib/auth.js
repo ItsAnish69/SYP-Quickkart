@@ -17,6 +17,8 @@ export const setAuthSession = (token, user = {}, durationMs = SESSION_DURATION_M
   if (serverSessionId) {
     localStorage.setItem(AUTH_SERVER_SESSION_KEY, String(serverSessionId));
   }
+
+  window.dispatchEvent(new Event('shop-data-updated'));
 };
 
 export const clearAuthSession = () => {
@@ -24,6 +26,8 @@ export const clearAuthSession = () => {
   localStorage.removeItem(AUTH_USER_KEY);
   localStorage.removeItem(AUTH_EXPIRY_KEY);
   localStorage.removeItem(AUTH_SERVER_SESSION_KEY);
+
+  window.dispatchEvent(new Event('shop-data-updated'));
 };
 
 export const isAuthSessionValid = () => {

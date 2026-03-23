@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 import forgotPasswordSvg from "../img/forgotpass.png";
 
 const forgotPassword = () => {
   const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -15,66 +15,28 @@ const forgotPassword = () => {
     setError("");
 
     try {
-      const response = await fetch("/api/auth/forgot-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to send reset email");
-      }
-
-      setSubmitted(true);
+      const targetEmail = email.trim();
+      await axios.post("http://localhost:5000/api/auth/forgot-password", { email: targetEmail });
       setEmail("");
+      navigate('/forgot-password/otp', { state: { email: targetEmail } });
     } catch (err) {
-      setError(err.message || "An error occurred. Please try again.");
+      setError(err.response?.data?.message || "Failed to send OTP. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  if (submitted) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
-        <div className="w-full max-w-md px-6">
-          <div className="text-center">
-            <img
-              src={forgotPasswordSvg}
-              alt="Email sent"
-              className="h-40 w-40 mx-auto mb-8"
-            />
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Email sent!
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-8">
-              Check your email for a link to reset your password.
-            </p>
-            <button
-              onClick={() => navigate("/authentication/login")}
-              className="inline-block w-full bg-[#FF6B35] hover:bg-orange-600 text-white font-semibold py-3 rounded-full transition duration-200"
-            >
-              Back to Login
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen flex flex-col bg-white transition-colors duration-300">
       {/* Header with Logo and Register Link */}
       {/* Main Content */}
-      <div className="flex-grow flex items-center justify-center px-6">
+      <div className="grow flex items-center justify-center px-6">
         <div className="w-full max-w-md">
           {/* Illustration */}
           <div className="text-center mb-12">
             <img
               src={forgotPasswordSvg}
-              alt="Forgot password"
+              alt="Change password"
               className="h-64 mx-auto"
             />
           </div>
@@ -83,12 +45,12 @@ const forgotPassword = () => {
           <div className="text-center flex flex-col relative bottom-10">
             {/* Heading */}
             <h1 className="text-4xl font-bold text-black mb-4">
-              Forgot your password?
+              Change your password
             </h1>
 
             {/* Description */}
             <p className="text-gray-600 text-sm">
-              Enter your email so that we can send you password reset link
+              Enter your email to receive a one-time password (OTP) for resetting your password.
             </p>
           </div>
 
@@ -125,17 +87,17 @@ const forgotPassword = () => {
               disabled={loading}
               className="w-full bg-[#007E5D] hover:bg-gray-900 text-white font-semibold py-3 rounded-full transition duration-200"
             >
-              {loading ? "Sending..." : "Send Email"}
+              {loading ? "Sending OTP..." : "Send OTP"}
             </button>
           </form>
 
           {/* Back to Login Link */}
           <div className="text-center mt-8">
             <button
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/")}
               className="text-black text-md flex w-full items-center justify-center gap-2 transition-colors duration-300 hover:underline hover:text-[#007E5D]"
             >
-              <span>← Back to login</span>
+              <span>← Back to home page</span>
             </button>
           </div>
         </div>

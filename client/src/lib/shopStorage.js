@@ -5,6 +5,11 @@ const FAVOURITES_KEY = 'favourites';
 const CART_KEY = 'cart';
 export const SHOP_DATA_EVENT = 'shop-data-updated';
 
+const getScopedFavouriteKey = () => {
+  const user = getAuthUser();
+  return user?.id ? `${FAVOURITES_KEY}:${user.id}` : FAVOURITES_KEY;
+};
+
 const getScopedCartKey = () => {
   const user = getAuthUser();
   return user?.id ? `${CART_KEY}:${user.id}` : CART_KEY;
@@ -24,7 +29,7 @@ const writeJSON = (key, value) => {
   window.dispatchEvent(new Event(SHOP_DATA_EVENT));
 };
 
-export const getFavouriteIds = () => readJSON(FAVOURITES_KEY, []);
+export const getFavouriteIds = () => readJSON(getScopedFavouriteKey(), []);
 
 export const isFavourite = (productId) => getFavouriteIds().includes(productId);
 
@@ -35,7 +40,7 @@ export const toggleFavourite = (productId) => {
     ? favourites.filter((id) => id !== productId)
     : [...favourites, productId];
 
-  writeJSON(FAVOURITES_KEY, updated);
+  writeJSON(getScopedFavouriteKey(), updated);
   return !exists;
 };
 

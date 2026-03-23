@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Search, ChevronDown, Menu, X, ShoppingCart, Heart, User } from 'lucide-react'
+import { ChevronDown, Menu, X, ShoppingCart, Heart, User } from 'lucide-react'
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
@@ -10,7 +10,6 @@ const navbar2 = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 1100);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [favouriteCount, setFavouriteCount] = useState(() => getFavouriteIds().length);
   const [cartCount, setCartCount] = useState(() => getCartCount());
 
@@ -116,20 +115,6 @@ const navbar2 = () => {
           </div>
         </div>
 
-        {/* Search Bar - Desktop */}
-        <div className={`${isSmallScreen ? 'hidden' : 'flex'} items-center`}>
-          <div className="relative">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search products..."
-              className="pl-10 pr-4 py-2 w-75 rounded-full bg-gray-100 border-none text-sm focus:outline-none focus:ring-2 focus:ring-[#007E5D] focus:bg-white transition-all"
-            />
-          </div>
-        </div>
-
         {/* Right Actions */}
         <div className="flex items-center gap-8 h-full">
           {/* Favourite */}
@@ -187,6 +172,14 @@ const navbar2 = () => {
                 </button>
                 <button 
                   onClick={() => {
+                    navigate('/forgot-password');
+                    setProfileDropdownOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 text-gray-700 hover:text-[#007E5D] hover:bg-gray-100 text-sm transition-colors">
+                  Change Password
+                </button>
+                <button 
+                  onClick={() => {
                     navigate('/help');
                     setProfileDropdownOpen(false);
                   }}
@@ -221,18 +214,6 @@ const navbar2 = () => {
       {mobileMenuOpen && isSmallScreen && (
         <div className="bg-white border-t border-gray-200">
           <div className="px-6 py-4 space-y-4">
-            {/* Mobile search */}
-            <div className="relative mb-2">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search products..."
-                className="w-full pl-9 pr-4 py-2.5 rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-[#007E5D]"
-              />
-            </div>
-
             {menuItems.map((item) => (
               <div key={item.label}>
                 <button className="w-full text-left flex items-center justify-between text-gray-700 hover:text-gray-900 py-2 text-sm">
@@ -297,6 +278,15 @@ const navbar2 = () => {
                   }}
                   className="block w-full text-left px-4 py-2 text-gray-700 hover:text-[#007E5D] hover:bg-gray-100 text-sm transition-colors rounded">
                   Your Orders
+                </button>
+                <button 
+                  onClick={() => {
+                    navigate('/forgot-password');
+                    setProfileDropdownOpen(false);
+                    setMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 text-gray-700 hover:text-[#007E5D] hover:bg-gray-100 text-sm transition-colors rounded">
+                  Change Password
                 </button>
                 <button 
                   onClick={() => {

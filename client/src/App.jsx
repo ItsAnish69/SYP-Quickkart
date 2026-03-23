@@ -18,6 +18,8 @@ import Help from './pages/help';
 import Login from './pages/authentication/login';
 import Register from './pages/authentication/register';
 import ForgotPassword from './pages/forgotPassword';
+import OtpVerification from './pages/otpVerification';
+import ResetPassword from './pages/resetPassword';
 import AdminDashboard from './pages/adminDashboard/AdminDashboard';
 import Payment from './pages/payment';
 import PaymentSuccess from './pages/paymentSuccess';
@@ -67,7 +69,7 @@ const App = () => {
     hydrateCartFromBackend();
   }, [isLoggedIn]);
 
-  const publicPaths = ['/', '/previewpage', '/product', '/product/electronics', '/product/groceries', '/product/home-kitchen', '/help', '/login', '/register', '/about-us', '/contact', '/forgot-password'];
+  const publicPaths = ['/', '/previewpage', '/product', '/product/electronics', '/product/groceries', '/product/home-kitchen', '/help', '/login', '/register', '/about-us', '/contact', '/forgot-password', '/forgot-password/otp', '/forgot-password/reset'];
   const authOnlyPaths = ['/favourite', '/cart', '/payment', '/payment/success', '/profile', '/orders'];
   const adminOnlyPaths = ['/admin', '/admin/dashboard'];
 
@@ -110,7 +112,7 @@ const App = () => {
 
   const validPaths = [...publicPaths, ...authOnlyPaths];
   const isAdminRoute = location.pathname.startsWith('/admin');
-  const isForm = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password';
+  const isForm = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password' || location.pathname === '/forgot-password/otp' || location.pathname === '/forgot-password/reset';
   const wrongURL = !validPaths.includes(location.pathname) && !isProductDetailsRoute;
 
   return (
@@ -138,6 +140,8 @@ const App = () => {
       <Route path='/help' element={<Help/>}/>
       <Route path='/login' element={<Login/>}/>
       <Route path='/register' element={<Register/>}/>
+      <Route path='/forgot-password/otp' element={<OtpVerification/>}/>
+      <Route path='/forgot-password/reset' element={<ResetPassword/>}/>
       <Route path='/admin/dashboard' element={<RequireAdmin><AdminDashboard/></RequireAdmin>}/>
       <Route path='/*' element={<RedirectToLastValid/>}/>
       <Route path='/forgot-password' element={<ForgotPassword/>}/>

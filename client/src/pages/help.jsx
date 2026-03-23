@@ -51,7 +51,7 @@ const Help = () => {
               <Phone size={16} /> +92 300 0000000
             </div>
             <div className="rounded-xl border border-neutral-200 p-4 bg-neutral-50 text-neutral-700 inline-flex items-center gap-2">
-              <MessageCircle size={16} /> Live chat available
+              <MessageCircle size={16} />  Order Message
             </div>
           </div>
         </div>

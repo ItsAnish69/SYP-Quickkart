@@ -349,6 +349,66 @@ export const groceriesProducts = [
   },
 ];
 
-export const allProducts = [...products, ...electronicsProducts, ...groceriesProducts];
+export const homeKitchenProducts = [
+  {
+    id: 301,
+    name: 'Non-Stick Cookware Set',
+    category: 'Cookware',
+    price: 89,
+    oldPrice: 119,
+    rating: 4.7,
+    reviews: 156,
+    color: 'Midnight Black',
+    image:
+      'https://images.unsplash.com/photo-1584990347449-a17f0ce0ea0f?auto=format&fit=crop&w=900&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1584990347449-a17f0ce0ea0f?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1610701596061-2ecf227e85b2?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=900&q=80',
+    ],
+    description:
+      'Durable non-stick cookware set built for even heating and easy cleanup, ideal for everyday home cooking.',
+  },
+  {
+    id: 302,
+    name: 'Air Fryer Digital 6L',
+    category: 'Kitchen Appliances',
+    price: 129,
+    oldPrice: 169,
+    rating: 4.8,
+    reviews: 231,
+    color: 'Matte Silver',
+    image:
+      'https://images.unsplash.com/photo-1585238342024-78d387f4a707?auto=format&fit=crop&w=900&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1585238342024-78d387f4a707?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1616594039964-3d6fbeef7da8?auto=format&fit=crop&w=900&q=80',
+    ],
+    description:
+      'Smart air fryer with one-touch presets to deliver crisp results using less oil and less cleanup.',
+  },
+  {
+    id: 303,
+    name: 'Bamboo Cutting Board Set',
+    category: 'Kitchen Tools',
+    price: 32,
+    oldPrice: 45,
+    rating: 4.6,
+    reviews: 98,
+    color: 'Natural Bamboo',
+    image:
+      'https://images.unsplash.com/photo-1570112006642-fc4f8d4f8159?auto=format&fit=crop&w=900&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1570112006642-fc4f8d4f8159?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1576866209830-589e1bfbaa4d?auto=format&fit=crop&w=900&q=80',
+    ],
+    description:
+      'Set of three bamboo boards sized for prep, serving, and carving with a knife-friendly surface.',
+  },
+];
+
+export const allProducts = [...products, ...electronicsProducts, ...groceriesProducts, ...homeKitchenProducts];
 
 export const getProductById = (id) => allProducts.find((product) => product.id === Number(id));
