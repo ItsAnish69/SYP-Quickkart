@@ -1,26 +1,46 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 dotenv.config();
-const transporter = nodemailer.createTransport({
-    service : 'gmail',
-    auth : {
-        user: process.env.EMAIL_USER,
-        pass : process.env.EMAIL_PASS
-    }
-});
 
-const SendEmail = async(to, subject, text) => {
+const getMailCredentials = () => {
+    const user = String(process.env.EMAIL_USER || '').trim();
+    const rawPass = String(process.env.EMAIL_PASS || '').trim();
+    // Gmail app passwords are 16 characters and often copied with spaces.
+    const pass = rawPass.replace(/\s+/g, '');
+    return { user, pass };
+};
+
+const createTransporter = () => {
+    const { user, pass } = getMailCredentials();
+
+    return nodemailer.createTransport({
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port: Number(process.env.SMTP_PORT || 465),
+        secure: String(process.env.SMTP_SECURE || 'true').toLowerCase() !== 'false',
+        auth: {
+            user,
+            pass,
+        },
+    });
+};
+
+const SendEmail = async(to, subject, text, html = '') => {
+    const { user, pass } = getMailCredentials();
+
     // Check if email credentials are configured
-    if(!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    if(!user || !pass) {
         console.warn("⚠️ Email service not configured - missing EMAIL_USER or EMAIL_PASS in .env");
         return { success: false, message: "Email service not configured" };
     }
 
+    const transporter = createTransporter();
+
     const mailOption = {
-        from : process.env.EMAIL_USER,
+        from : user,
         to,
         subject,
-        text
+        text,
+        html: html || undefined,
     };
 
     try{
@@ -29,7 +49,22 @@ const SendEmail = async(to, subject, text) => {
         return { success: true, message: "Email sent successfully", info };
     } catch(err){
         console.error('✗ Error sending email to', to, ':', err.message);
-        return { success: false, message: "Failed to send email", error: err.message };
+        if (err.code) {
+            console.error('✗ Mail error code:', err.code);
+        }
+        if (err.response) {
+            console.error('✗ Mail server response:', err.response);
+        }
+        const isBadCredentials = err.responseCode === 535 || /BadCredentials|Username and Password not accepted/i.test(String(err.response || err.message || ''));
+        if (isBadCredentials) {
+            return {
+                success: false,
+                message: 'Gmail rejected credentials. Use EMAIL_USER as your Gmail address and EMAIL_PASS as a valid 16-character Google App Password (no spaces). Also ensure 2-Step Verification is enabled on that Google account.',
+                error: err.message,
+                code: err.code,
+            };
+        }
+        return { success: false, message: err.response || err.message || "Failed to send email", error: err.message, code: err.code };
     }
 }
 
