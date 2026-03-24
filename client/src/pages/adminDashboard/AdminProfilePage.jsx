@@ -16,15 +16,15 @@ const AdminProfilePage = () => {
       </div>
 
       <div className="rounded-2xl bg-white border border-gray-100 shadow-[0_8px_28px_rgba(0,0,0,0.06)] overflow-hidden">
-        <div className="bg-linear-to-r from-[#5B5FEF] via-[#6A63F7] to-[#7C7FFF] px-6 py-7 text-white">
+        <div className="bg-linear-to-r from-[#007E5D] via-[#00B98A] to-[#00E4A8] px-6 py-7 text-white">
           <p className="text-xs uppercase tracking-[0.2em] text-white/80">Administrator</p>
           <h2 className="mt-2 text-2xl font-semibold">Profile Overview</h2>
           <p className="mt-1 text-sm text-white/85">Secure account details for admin operations.</p>
         </div>
 
         <div className="p-6 sm:p-8 space-y-5">
-          <div className="rounded-xl border border-[#e6e7ff] bg-[#f7f8ff] p-5 flex items-center gap-4">
-            <div className="w-14 h-14 rounded-xl bg-white text-[#5B5FEF] border border-[#dfe1ff] flex items-center justify-center">
+          <div className="rounded-xl border border-[#cfeee4] bg-[#eefbf6] p-5 flex items-center gap-4">
+            <div className="w-14 h-14 rounded-xl bg-white text-[#007E5D] border border-[#bde8d9] flex items-center justify-center">
               <UserCircle2 size={32} />
             </div>
             <div>

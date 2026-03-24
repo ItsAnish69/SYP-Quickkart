@@ -105,6 +105,18 @@ const Home = () => {
     }
   };
 
+  const openTrendyDeals = () => {
+    navigate('/product/electronics');
+  };
+
+  const openPromotions = () => {
+    navigate('/product/home-kitchen');
+  };
+
+  const openDeliveryInfo = () => {
+    navigate('/about-us');
+  };
+
   const ProductCard = ({ product }) => (
     <div
       className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer border border-gray-100"
@@ -140,7 +152,7 @@ const Home = () => {
         </button>
       </div>
       <div className="p-4">
-        <h3 className="text-sm font-medium text-gray-800 line-clamp-2 mb-2 min-h-[2.5rem]">
+        <h3 className="text-sm font-medium text-gray-800 line-clamp-2 mb-2 min-h-10">
           {product.name}
         </h3>
         <div className="flex items-center gap-1 mb-2">
@@ -180,11 +192,11 @@ const Home = () => {
               </h1>
               <ul className="space-y-2 text-gray-600 mb-8 text-sm md:text-base">
                 <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-gray-400 rounded-full flex-shrink-0" />
+                  <span className="w-1.5 h-1.5 bg-gray-400 rounded-full shrink-0" />
                   Shop laptops, desktops, monitors, tablets, PC gaming
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-gray-400 rounded-full flex-shrink-0" />
+                  <span className="w-1.5 h-1.5 bg-gray-400 rounded-full shrink-0" />
                   Hard drives and storage, accessories and more
                 </li>
               </ul>
@@ -282,7 +294,10 @@ const Home = () => {
       <section className="py-4 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-[#f5f0e8] rounded-2xl p-6 md:p-8 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow">
+            <div
+              className="bg-[#f5f0e8] rounded-2xl p-6 md:p-8 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
+              onClick={openTrendyDeals}
+            >
               <div>
                 <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-2">
                   Quickkart Basics
@@ -301,7 +316,10 @@ const Home = () => {
                 className="w-28 h-20 md:w-32 md:h-24 object-cover rounded-xl hidden sm:block"
               />
             </div>
-            <div className="bg-[#faf5ef] rounded-2xl p-6 md:p-8 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow">
+            <div
+              className="bg-[#faf5ef] rounded-2xl p-6 md:p-8 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
+              onClick={openPromotions}
+            >
               <div>
                 <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-2">
                   Deals & Promotions
@@ -327,7 +345,10 @@ const Home = () => {
       {/* Delivery Banner */}
       <section className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#faf8f5] rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div
+            className="bg-[#faf8f5] rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 cursor-pointer hover:shadow-md transition-shadow"
+            onClick={openDeliveryInfo}
+          >
             <div className="max-w-lg">
               <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Discover Quickkart</p>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
@@ -338,11 +359,15 @@ const Home = () => {
                 Worldwide shipping. We ship to over 100 countries and
                 regions, right here on Quickkart.
               </p>
-              <button className="border-2 border-gray-900 text-gray-900 px-6 py-2.5 rounded-full font-medium hover:bg-gray-900 hover:text-white transition-all text-sm">
+              <button
+                type="button"
+                onClick={openDeliveryInfo}
+                className="border-2 border-gray-900 text-gray-900 px-6 py-2.5 rounded-full font-medium hover:bg-gray-900 hover:text-white transition-all text-sm"
+              >
                 View more
               </button>
             </div>
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <Package size={100} className="text-[#007E5D] md:w-[120px] md:h-[120px]" strokeWidth={1} />
             </div>
           </div>

@@ -128,7 +128,7 @@ const ReviewsPage = () => {
         <button
           type="button"
           onClick={openModal}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-[#5B5FEF] text-white text-sm font-semibold hover:opacity-90 transition mb-3"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-[#007E5D] text-white text-sm font-semibold hover:opacity-90 transition mb-3"
         >
           <Plus size={16} /> Add Review
         </button>
@@ -214,7 +214,7 @@ const ReviewsPage = () => {
                     name="user_id"
                     value={formData.user_id}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF]"
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#007E5D]"
                     placeholder="e.g. 1"
                   />
                 </div>
@@ -227,7 +227,7 @@ const ReviewsPage = () => {
                     name="product_id"
                     value={formData.product_id}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF]"
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#007E5D]"
                     placeholder="e.g. 2"
                   />
                 </div>
@@ -240,7 +240,7 @@ const ReviewsPage = () => {
                   name="comment"
                   value={formData.comment}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF] resize-none"
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#007E5D] resize-none"
                   placeholder="Write a customer review..."
                 />
               </div>
@@ -260,7 +260,7 @@ const ReviewsPage = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2.5 text-sm font-semibold rounded-lg bg-[#5B5FEF] text-white hover:opacity-90 transition disabled:opacity-60"
+                  className="px-4 py-2.5 text-sm font-semibold rounded-lg bg-[#007E5D] text-white hover:opacity-90 transition disabled:opacity-60"
                 >
                   {isSubmitting ? (editingId ? 'Saving...' : 'Creating...') : (editingId ? 'Save Changes' : 'Create Review')}
                 </button>

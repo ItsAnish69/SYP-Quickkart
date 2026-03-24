@@ -5,6 +5,9 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
+    temporary_password_active TINYINT(1) NOT NULL DEFAULT 0,
+    temporary_password_used TINYINT(1) NOT NULL DEFAULT 0,
+    temporary_password_expires_at DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

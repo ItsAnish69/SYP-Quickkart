@@ -40,6 +40,9 @@ const runSqlFile = async (filePath, label) => {
 const ensureUsersColumns = async () => {
     const requiredColumns = [
         { name: 'role', definition: "ENUM('user', 'admin') NOT NULL DEFAULT 'user'" },
+        { name: 'temporary_password_active', definition: 'TINYINT(1) NOT NULL DEFAULT 0' },
+        { name: 'temporary_password_used', definition: 'TINYINT(1) NOT NULL DEFAULT 0' },
+        { name: 'temporary_password_expires_at', definition: 'DATETIME NULL' },
     ];
 
     for (const column of requiredColumns) {
@@ -117,6 +120,7 @@ import categoryRoute from './routes/categories.js';
 import reviewRoute from './routes/reviews.js';
 import orderRoute from './routes/orders.js';
 import cartRoute from './routes/cart.js';
+import usersRoute from './routes/users.js';
 
 dotenv.config()
 
@@ -130,6 +134,7 @@ app.use('/api/categories', categoryRoute);
 app.use('/api/reviews', reviewRoute);
 app.use('/api/orders', orderRoute);
 app.use('/api/cart', cartRoute);
+app.use('/api/users', usersRoute);
 
 
 //PORT connection on 5000

@@ -89,78 +89,145 @@ const DeliveryTrackingPage = () => {
         ) : orders.length === 0 ? (
           <div className="py-16 text-center text-sm text-gray-400">No orders found yet.</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b border-gray-100 bg-[#F9FAFC]">
-                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Order ID</th>
-                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">User ID</th>
-                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">User</th>
-                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Product</th>
-                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Payment</th>
-                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Status</th>
-                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Tracking Note</th>
-                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((order) => (
-                  <tr key={order.id} className="border-b border-gray-50 last:border-b-0 align-top">
-                    <td className="py-3.5 px-4 text-sm text-gray-700">#{order.id}</td>
-                    <td className="py-3.5 px-4 text-sm text-gray-700">{order.user_id}</td>
-                    <td className="py-3.5 px-4 text-sm text-gray-700">
-                      <p className="font-semibold text-gray-800">{order.user_name}</p>
-                      <p className="text-xs text-gray-500">{order.user_email}</p>
-                    </td>
-                    <td className="py-3.5 px-4 text-sm text-gray-700">{order.product_name}</td>
-                    <td className="py-3.5 px-4 text-sm text-gray-700">
-                      <p className="font-medium text-gray-800">{paymentLabel(order.payment_method)}</p>
-                      <p className="text-xs text-gray-500 uppercase">{paymentStatusLabel(order.payment_status)}</p>
-                    </td>
-                    <td className="py-3.5 px-4 text-sm text-gray-700 min-w-[170px]">
-                      <select
-                        value={order.delivery_status}
-                        onChange={(e) => handleFieldChange(order.id, 'delivery_status', e.target.value)}
-                        className="w-full rounded-lg border border-gray-200 px-2.5 py-2 text-sm outline-none focus:border-[#5B5FEF]"
-                      >
-                        {statusOptions.map((status) => (
-                          <option key={status} value={status}>{status}</option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="py-3.5 px-4 text-sm text-gray-700 min-w-[260px]">
-                      <input
-                        type="text"
-                        value={order.tracking_note || ''}
-                        onChange={(e) => handleFieldChange(order.id, 'tracking_note', e.target.value)}
-                        placeholder="e.g. Rider assigned"
-                        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#5B5FEF]"
-                      />
-                    </td>
-                    <td className="py-3.5 px-4 text-sm text-gray-700">
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => saveDeliveryStatus(order)}
-                          disabled={savingOrderId === order.id}
-                          className="rounded-lg bg-[#5B5FEF] px-3 py-2 text-white text-xs font-semibold hover:opacity-90 transition disabled:opacity-60"
-                        >
-                          {savingOrderId === order.id ? 'Saving...' : 'Update'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => deleteOrder(order.id)}
-                          className="rounded-lg border border-red-200 px-3 py-2 text-red-600 text-xs font-semibold hover:bg-red-50 transition inline-flex items-center gap-1"
-                        >
-                          <Trash2 size={12} /> Delete
-                        </button>
-                      </div>
-                    </td>
+          <>
+            <div className="md:hidden p-4 space-y-3 bg-[#F9FAFC]">
+              {orders.map((order) => (
+                <article key={order.id} className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-800">Order #{order.id}</h3>
+                      <p className="text-xs text-gray-500 mt-0.5">User ID: {order.user_id}</p>
+                    </div>
+                    <span className="text-[0.68rem] px-2 py-1 rounded-full bg-gray-100 text-gray-700 uppercase tracking-wide">
+                      {paymentStatusLabel(order.payment_status)}
+                    </span>
+                  </div>
+
+                  <div className="mt-3 space-y-1.5 text-sm text-gray-700">
+                    <p className="font-semibold text-gray-800 wrap-break-word">{order.user_name}</p>
+                    <p className="text-xs text-gray-500 break-all">{order.user_email}</p>
+                    <p className="wrap-break-word"><span className="font-medium text-gray-600">Product:</span> {order.product_name}</p>
+                    <p><span className="font-medium text-gray-600">Payment:</span> {paymentLabel(order.payment_method)}</p>
+                  </div>
+
+                  <div className="mt-3">
+                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Delivery Status</label>
+                    <select
+                      value={order.delivery_status}
+                      onChange={(e) => handleFieldChange(order.id, 'delivery_status', e.target.value)}
+                      className="w-full rounded-lg border border-gray-200 px-2.5 py-2 text-sm outline-none focus:border-[#007E5D]"
+                    >
+                      {statusOptions.map((status) => (
+                        <option key={status} value={status}>{status}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="mt-3">
+                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Tracking Note</label>
+                    <input
+                      type="text"
+                      value={order.tracking_note || ''}
+                      onChange={(e) => handleFieldChange(order.id, 'tracking_note', e.target.value)}
+                      placeholder="e.g. Rider assigned"
+                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#007E5D]"
+                    />
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => saveDeliveryStatus(order)}
+                      disabled={savingOrderId === order.id}
+                      className="rounded-lg bg-[#007E5D] px-3 py-2 text-white text-xs font-semibold hover:opacity-90 transition disabled:opacity-60"
+                    >
+                      {savingOrderId === order.id ? 'Saving...' : 'Update'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteOrder(order.id)}
+                      className="rounded-lg border border-red-200 px-3 py-2 text-red-600 text-xs font-semibold hover:bg-red-50 transition inline-flex items-center gap-1"
+                    >
+                      <Trash2 size={12} /> Delete
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-gray-100 bg-[#F9FAFC]">
+                    <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Order ID</th>
+                    <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">User ID</th>
+                    <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">User</th>
+                    <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Product</th>
+                    <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Payment</th>
+                    <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Status</th>
+                    <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Tracking Note</th>
+                    <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {orders.map((order) => (
+                    <tr key={order.id} className="border-b border-gray-50 last:border-b-0 align-top">
+                      <td className="py-3.5 px-4 text-sm text-gray-700">#{order.id}</td>
+                      <td className="py-3.5 px-4 text-sm text-gray-700">{order.user_id}</td>
+                      <td className="py-3.5 px-4 text-sm text-gray-700">
+                        <p className="font-semibold text-gray-800">{order.user_name}</p>
+                        <p className="text-xs text-gray-500">{order.user_email}</p>
+                      </td>
+                      <td className="py-3.5 px-4 text-sm text-gray-700">{order.product_name}</td>
+                      <td className="py-3.5 px-4 text-sm text-gray-700">
+                        <p className="font-medium text-gray-800">{paymentLabel(order.payment_method)}</p>
+                        <p className="text-xs text-gray-500 uppercase">{paymentStatusLabel(order.payment_status)}</p>
+                      </td>
+                      <td className="py-3.5 px-4 text-sm text-gray-700 min-w-[170px]">
+                        <select
+                          value={order.delivery_status}
+                          onChange={(e) => handleFieldChange(order.id, 'delivery_status', e.target.value)}
+                          className="w-full rounded-lg border border-gray-200 px-2.5 py-2 text-sm outline-none focus:border-[#007E5D]"
+                        >
+                          {statusOptions.map((status) => (
+                            <option key={status} value={status}>{status}</option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="py-3.5 px-4 text-sm text-gray-700 min-w-[260px]">
+                        <input
+                          type="text"
+                          value={order.tracking_note || ''}
+                          onChange={(e) => handleFieldChange(order.id, 'tracking_note', e.target.value)}
+                          placeholder="e.g. Rider assigned"
+                          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#007E5D]"
+                        />
+                      </td>
+                      <td className="py-3.5 px-4 text-sm text-gray-700">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => saveDeliveryStatus(order)}
+                            disabled={savingOrderId === order.id}
+                            className="rounded-lg bg-[#007E5D] px-3 py-2 text-white text-xs font-semibold hover:opacity-90 transition disabled:opacity-60"
+                          >
+                            {savingOrderId === order.id ? 'Saving...' : 'Update'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => deleteOrder(order.id)}
+                            className="rounded-lg border border-red-200 px-3 py-2 text-red-600 text-xs font-semibold hover:bg-red-50 transition inline-flex items-center gap-1"
+                          >
+                            <Trash2 size={12} /> Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </main>

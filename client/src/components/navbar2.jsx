@@ -172,7 +172,7 @@ const navbar2 = () => {
                 </button>
                 <button 
                   onClick={() => {
-                    navigate('/forgot-password');
+                    navigate('/change-password');
                     setProfileDropdownOpen(false);
                   }}
                   className="block w-full text-left px-4 py-2 text-gray-700 hover:text-[#007E5D] hover:bg-gray-100 text-sm transition-colors">
@@ -307,7 +307,7 @@ const navbar2 = () => {
                 </button>
                 <button 
                   onClick={() => {
-                    navigate('/forgot-password');
+                    navigate('/change-password');
                     setProfileDropdownOpen(false);
                     setMobileMenuOpen(false);
                   }}

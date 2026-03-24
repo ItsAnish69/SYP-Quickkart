@@ -1,6 +1,6 @@
 //creating a register API
 import express from 'express';
-import { registerUser, loginUser, getSessionMeta, requestPasswordOtp, verifyPasswordOtp, resetPasswordWithOtp } from '../Controller/authContoller.js';
+import { registerUser, loginUser, getSessionMeta, forgotPasswordByEmail, requestPasswordOtp, verifyPasswordOtp, resetPasswordWithOtp } from '../Controller/authContoller.js';
 
 const router = express.Router();  
 
@@ -10,8 +10,11 @@ router.post('/register', registerUser);
 //login
 router.post('/login', loginUser);
 
-// forgot password - send OTP to registered email
-router.post('/forgot-password', requestPasswordOtp);
+// forgot password - send temporary password to registered email
+router.post('/forgot-password', forgotPasswordByEmail);
+
+// change password - send OTP to registered email
+router.post('/change-password', requestPasswordOtp);
 
 // forgot password - verify OTP
 router.post('/verify-password-otp', verifyPasswordOtp);

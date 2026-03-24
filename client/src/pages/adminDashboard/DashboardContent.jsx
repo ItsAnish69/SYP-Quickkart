@@ -5,7 +5,7 @@ import { ShoppingBag, DollarSign, Users, Box, ArrowRight } from 'lucide-react';
 const API = 'http://localhost:5000/api/orders/overview';
 
 const kpiCardStyles = [
-  { icon: ShoppingBag, iconBg: 'bg-indigo-50', iconColor: 'text-indigo-600' },
+  { icon: ShoppingBag, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-700' },
   { icon: DollarSign, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600' },
   { icon: Users, iconBg: 'bg-cyan-50', iconColor: 'text-cyan-600' },
   { icon: Box, iconBg: 'bg-[#EAF7F3]', iconColor: 'text-[#007E5D]' },
@@ -93,7 +93,7 @@ const DashboardContent = () => {
                 return (
                   <div key={String(row.day)} className="flex-1 flex flex-col items-center gap-1.5">
                     <div
-                      className="w-full max-w-6 rounded-t-md bg-[#5B5FEF] hover:opacity-80 transition"
+                      className="w-full max-w-6 rounded-t-md bg-[#007E5D] hover:opacity-80 transition"
                       style={{ height: `${Math.max(8, height)}px` }}
                       title={`$${Number(row.revenue || 0).toFixed(2)} | ${Number(row.orders || 0)} orders`}
                     />
@@ -120,7 +120,7 @@ const DashboardContent = () => {
         <div className="bg-white rounded-[14px] shadow-[0_2px_12px_rgba(0,0,0,0.06)] border border-gray-100">
           <div className="flex items-center justify-between px-6 pt-5 pb-4">
             <h3 className="text-[1.05rem] font-semibold">Top Selling Departments</h3>
-            <span className="text-[0.82rem] text-[#5B5FEF] font-medium flex items-center gap-1">Live <ArrowRight size={14} /></span>
+            <span className="text-[0.82rem] text-[#007E5D] font-medium flex items-center gap-1">Live <ArrowRight size={14} /></span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 px-6 pb-6">
             {topDepartments.length ? topDepartments.map((dep) => (
@@ -153,7 +153,7 @@ const DashboardContent = () => {
               <tbody>
                 {recentOrders.length ? recentOrders.map((order) => (
                   <tr key={order.id} className="border-b border-gray-50 last:border-b-0">
-                    <td className="py-3.5 px-3 text-sm font-semibold text-[#5B5FEF]">#{order.id}</td>
+                    <td className="py-3.5 px-3 text-sm font-semibold text-[#007E5D]">#{order.id}</td>
                     <td className="py-3.5 px-3 text-sm">{order.customer}</td>
                     <td className="py-3.5 px-3 text-sm">{order.product}</td>
                     <td className="py-3.5 px-3 text-sm">${Number(order.total_price || 0).toFixed(2)}</td>
@@ -176,7 +176,7 @@ const DashboardContent = () => {
               <div key={item.id} className="p-3.5 rounded-[10px] hover:bg-[#F5F6FA] transition">
                 <strong className="block text-[0.9rem] font-semibold">#{item.id} - {item.name}</strong>
                 <span className="text-[0.78rem] text-gray-500">{item.product_name}</span>
-                <p className="text-[0.75rem] text-[#5B5FEF] mt-1 capitalize">{item.delivery_status}</p>
+                <p className="text-[0.75rem] text-[#007E5D] mt-1 capitalize">{item.delivery_status}</p>
               </div>
             )) : <div className="py-8 text-center text-sm text-gray-400">No pending deliveries.</div>}
           </div>

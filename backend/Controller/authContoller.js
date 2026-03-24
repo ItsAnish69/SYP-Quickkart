@@ -17,6 +17,82 @@ const normalizeRole = (roleValue) => {
 
 const generateOtp = () => String(Math.floor(100000 + Math.random() * 900000));
 const generateResetToken = () => crypto.randomBytes(24).toString('hex');
+const generateTemporaryPassword = () => crypto.randomBytes(6).toString('base64url');
+
+const forgotPasswordByEmail = async (req, res) => {
+    try {
+        const email = String(req.body?.email || '').trim().toLowerCase();
+
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required' });
+        }
+
+        db.query('SELECT id, name, email FROM users WHERE email = ? LIMIT 1', [email], async (err, result) => {
+            if (err) {
+                return res.status(500).json({ message: 'Failed to process forgot password request', error: err.message });
+            }
+
+            if (!result.length) {
+                return res.status(404).json({ success: false, message: 'No account found for this email.' });
+            }
+
+            const user = result[0];
+            const temporaryPassword = generateTemporaryPassword();
+            const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
+
+                db.query(
+                    'UPDATE users SET password = ?, temporary_password_active = 1, temporary_password_used = 0, temporary_password_expires_at = DATE_ADD(NOW(), INTERVAL 30 MINUTE) WHERE id = ?',
+                    [hashedPassword, user.id],
+                    async (updateErr) => {
+                if (updateErr) {
+                    return res.status(500).json({ message: 'Failed to update temporary password', error: updateErr.message });
+                }
+
+                const emailResult = await mail.SendEmail(
+                    user.email,
+                    'Quickkart temporary password',
+                    `Hello ${user.name},\n\nA temporary password was requested for your Quickkart account.\n\nTemporary Password: ${temporaryPassword}\n\nPlease log in using this temporary password and change it immediately from your profile.\n\nBest,\nQuickkart Team`,
+                    `
+                    <div style="font-family: Arial, sans-serif; background: #f3f7f5; padding: 24px;">
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 14px; overflow: hidden; border: 1px solid #e5ece8;">
+                            <tr>
+                                <td style="background: linear-gradient(135deg, #007E5D 0%, #00A57A 100%); color: #ffffff; padding: 20px 24px;">
+                                    <h1 style="margin: 0; font-size: 22px; font-weight: 700;">Quickkart Forgot Password</h1>
+                                    <p style="margin: 8px 0 0; font-size: 14px; opacity: 0.95;">Use this temporary password to log in.</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 24px; color: #1f2937;">
+                                    <p style="margin: 0 0 14px; font-size: 15px;">Hello ${user.name},</p>
+                                    <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6;">Your temporary password is:</p>
+                                    <div style="margin: 0 auto 20px; width: fit-content; padding: 12px 20px; border-radius: 10px; background: #ecfdf5; border: 1px dashed #10b981; color: #065f46; font-size: 24px; font-weight: 700; letter-spacing: 2px;">
+                                        ${temporaryPassword}
+                                    </div>
+                                    <p style="margin: 0 0 10px; font-size: 14px; color: #4b5563;">Please log in and change your password immediately.</p>
+                                    <p style="margin: 0; font-size: 13px; color: #6b7280;">If you did not request this, contact support right away.</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 16px 24px; background: #f9fafb; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 12px;">
+                                    Quickkart Team
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    `
+                );
+
+                if (!emailResult.success) {
+                    return res.status(500).json({ message: emailResult.message || 'Failed to send temporary password email', code: emailResult.code || null });
+                }
+
+                return res.status(200).json({ success: true, message: 'Temporary password sent to your email.' });
+            });
+        });
+    } catch (err) {
+        return res.status(500).json({ message: 'Failed to process forgot password request', error: err.message });
+    }
+};
 
 const requestPasswordOtp = async (req, res) => {
     try {
@@ -164,7 +240,7 @@ const resetPasswordWithOtp = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-        db.query('UPDATE users SET password = ? WHERE email = ?', [hashedPassword, email], (err, result) => {
+        db.query('UPDATE users SET password = ?, temporary_password_active = 0, temporary_password_used = 0, temporary_password_expires_at = NULL WHERE email = ?', [hashedPassword, email], (err, result) => {
             if (err) {
                 return res.status(500).json({ message: 'Failed to reset password', error: err.message });
             }
@@ -308,26 +384,54 @@ const loginUser = async(req, res) =>{
             if (selectedRole !== storedRole) {
                 return res.status(403).json({message: `This account is registered as ${storedRole}. Please select ${storedRole} role to continue.`});
             }
+            let usedTemporaryPassword = false;
 
-            //create jwt token upon correct password
-            const token = jwt.sign(
-                {id: user.id, email: user.email, role: storedRole},
-                process.env.JWT_SECRET,
-                {expiresIn : '24h'}
-            );
+            const completeLogin = () => {
+                const token = jwt.sign(
+                    {id: user.id, email: user.email, role: storedRole},
+                    process.env.JWT_SECRET,
+                    {expiresIn : '24h'}
+                );
 
-            return res.json({
-                success: true,
-                message: "Login Successfull",
-                token: token,
-                ...getServerSessionMeta(),
-                user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: storedRole
+                return res.json({
+                    success: true,
+                    message: "Login Successfull",
+                    token: token,
+                    temporaryPasswordUsed: usedTemporaryPassword,
+                    ...getServerSessionMeta(),
+                    user: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: storedRole
+                }
+                });
+            };
+
+            const isTemporaryPasswordActive = Number(user.temporary_password_active || 0) === 1;
+            const isTemporaryPasswordUsed = Number(user.temporary_password_used || 0) === 1;
+            const temporaryPasswordExpiresAt = user.temporary_password_expires_at ? new Date(user.temporary_password_expires_at).getTime() : 0;
+
+            if (!isTemporaryPasswordActive) {
+                return completeLogin();
             }
-            })
+
+            if (temporaryPasswordExpiresAt && Date.now() > temporaryPasswordExpiresAt) {
+                return res.status(401).json({message: 'Temporary password expired. Please request a new one.'});
+            }
+
+            if (isTemporaryPasswordUsed) {
+                return res.status(401).json({message: 'Temporary password has already been used. Please request a new one.'});
+            }
+
+            usedTemporaryPassword = true;
+            db.query('UPDATE users SET temporary_password_used = 1 WHERE id = ?', [user.id], (markUsedErr) => {
+                if (markUsedErr) {
+                    return res.status(500).json({message: 'Failed to validate temporary password', error: markUsedErr.message});
+                }
+
+                return completeLogin();
+            });
         })
     } catch(err){
         return res.status(500).json({message: "Database Error", error: err})
@@ -339,4 +443,4 @@ const getSessionMeta = (req, res) => {
 };
 
 
-export { registerUser, loginUser, getSessionMeta, requestPasswordOtp, verifyPasswordOtp, resetPasswordWithOtp };
+export { registerUser, loginUser, getSessionMeta, forgotPasswordByEmail, requestPasswordOtp, verifyPasswordOtp, resetPasswordWithOtp };

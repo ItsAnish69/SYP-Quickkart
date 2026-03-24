@@ -38,7 +38,7 @@ const OtpVerification = () => {
       if (!resetToken) {
         throw new Error('Reset token missing from server response.');
       }
-      navigate('/forgot-password/reset', { state: { email: emailFromState, resetToken } });
+      navigate('/change-password/reset', { state: { email: emailFromState, resetToken } });
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Failed to verify OTP.');
     } finally {
@@ -88,7 +88,7 @@ const OtpVerification = () => {
 
         <button
           type="button"
-          onClick={() => navigate('/forgot-password')}
+          onClick={() => navigate('/change-password')}
           className="mt-5 w-full text-sm text-gray-600 transition hover:text-[#007E5D]"
         >
           Back to Change Password

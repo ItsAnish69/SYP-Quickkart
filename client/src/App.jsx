@@ -17,7 +17,8 @@ import YourOrders from './pages/yourOrders';
 import Help from './pages/help';
 import Login from './pages/authentication/login';
 import Register from './pages/authentication/register';
-import ForgotPassword from './pages/forgotPassword';
+import ForgotPassword from './pages/forgot-password';
+import ChangePassword from './pages/change-password';
 import OtpVerification from './pages/otpVerification';
 import ResetPassword from './pages/resetPassword';
 import AdminDashboard from './pages/adminDashboard/AdminDashboard';
@@ -69,7 +70,7 @@ const App = () => {
     hydrateCartFromBackend();
   }, [isLoggedIn]);
 
-  const publicPaths = ['/', '/previewpage', '/product', '/product/electronics', '/product/groceries', '/product/home-kitchen', '/help', '/login', '/register', '/about-us', '/contact', '/forgot-password', '/forgot-password/otp', '/forgot-password/reset'];
+  const publicPaths = ['/', '/previewpage', '/product', '/product/electronics', '/product/groceries', '/product/home-kitchen', '/help', '/login', '/register', '/about-us', '/contact', '/change-password', '/change-password/otp', '/change-password/reset', '/forgot-password'];
   const authOnlyPaths = ['/favourite', '/cart', '/payment', '/payment/success', '/profile', '/orders'];
   const adminOnlyPaths = ['/admin', '/admin/dashboard'];
 
@@ -112,7 +113,7 @@ const App = () => {
 
   const validPaths = [...publicPaths, ...authOnlyPaths];
   const isAdminRoute = location.pathname.startsWith('/admin');
-  const isForm = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password' || location.pathname === '/forgot-password/otp' || location.pathname === '/forgot-password/reset';
+  const isForm = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/change-password' || location.pathname === '/change-password/otp' || location.pathname === '/change-password/reset' || location.pathname === '/forgot-password';
   const wrongURL = !validPaths.includes(location.pathname) && !isProductDetailsRoute;
 
   return (
@@ -140,11 +141,12 @@ const App = () => {
       <Route path='/help' element={<Help/>}/>
       <Route path='/login' element={<Login/>}/>
       <Route path='/register' element={<Register/>}/>
-      <Route path='/forgot-password/otp' element={<OtpVerification/>}/>
-      <Route path='/forgot-password/reset' element={<ResetPassword/>}/>
+      <Route path='/change-password/otp' element={<OtpVerification/>}/>
+      <Route path='/change-password/reset' element={<ResetPassword/>}/>
       <Route path='/admin/dashboard' element={<RequireAdmin><AdminDashboard/></RequireAdmin>}/>
       <Route path='/*' element={<RedirectToLastValid/>}/>
       <Route path='/forgot-password' element={<ForgotPassword/>}/>
+      <Route path='/change-password' element={<ChangePassword/>}/>
       <Route path='/admin' element={<RequireAdmin><AdminDashboard/></RequireAdmin>}/>
     </Routes>
     {!isAdminRoute && !isForm && !wrongURL && <Footer/>}

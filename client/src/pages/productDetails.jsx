@@ -80,7 +80,18 @@ const ProductDetails = () => {
     );
   }
 
-  const images = product.images?.length ? product.images : [product.image, product.image, product.image];
+  const primaryImage = String(product.image || '').trim();
+  const galleryImages = Array.isArray(product.images)
+    ? product.images
+      .map((img) => String(img || '').trim())
+      .filter(Boolean)
+    : [];
+
+  // Always keep the latest primary image as the first image shown in details view.
+  const composedImages = [primaryImage, ...galleryImages.filter((img) => img !== primaryImage)].filter(Boolean);
+  const images = composedImages.length > 3
+    ? composedImages.filter((_, index) => index !== 1)
+    : composedImages;
   const showSizeSelector = product.department === 'clothing';
 
   const reviews = [

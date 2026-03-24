@@ -41,6 +41,116 @@ const ProductsPage = () => {
     return () => clearInterval(intervalId);
   }, []);
 
+  const groupedProducts = products.reduce((acc, product) => {
+    const department = String(product.department || 'uncategorized').toLowerCase();
+    if (!acc[department]) {
+      acc[department] = [];
+    }
+    acc[department].push(product);
+    return acc;
+  }, {});
+
+  const departmentOrder = ['clothing', 'electronics', 'groceries', 'home-kitchen'];
+  const orderedDepartments = [
+    ...departmentOrder.filter((department) => groupedProducts[department]?.length),
+    ...Object.keys(groupedProducts)
+      .filter((department) => !departmentOrder.includes(department))
+      .sort(),
+  ];
+
+  const formatDepartmentLabel = (department) =>
+    department
+      .split('-')
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
+
+  const renderProductRows = (items) => {
+    if (!items.length) {
+      return (
+        <tr>
+          <td colSpan={9} className="py-3.5 px-4 text-sm text-gray-400">
+            No products found in this category.
+          </td>
+        </tr>
+      );
+    }
+
+    return items.map((product) => (
+      <tr key={product.id} className="border-b border-gray-50 last:border-b-0">
+        <td className="py-3.5 px-4 text-sm text-gray-700">{product.id}</td>
+        <td className="py-3.5 px-4 text-sm text-gray-700 capitalize">{product.department || '-'}</td>
+        <td className="py-3.5 px-4 text-sm font-semibold text-gray-800">{product.name || '-'}</td>
+        <td className="py-3.5 px-4 text-sm text-gray-700">${Number(product.price || 0).toFixed(2)}</td>
+        <td className="py-3.5 px-4 text-sm text-gray-700">{Number(product.rating || 0).toFixed(1)}</td>
+        <td className="py-3.5 px-4 text-sm text-gray-700">{product.reviews || 0}</td>
+        <td className="py-3.5 px-4 text-sm text-gray-700">{product.description || '-'}</td>
+        <td className="py-3.5 px-4 text-sm text-gray-500">{new Date(product.created_at).toLocaleString()}</td>
+        <td className="py-3.5 px-4 text-sm text-gray-700">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => openEditModal(product)}
+              className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50"
+            >
+              <Pencil size={12} /> Edit
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDelete(product.id)}
+              className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50"
+            >
+              <Trash2 size={12} /> Delete
+            </button>
+          </div>
+        </td>
+      </tr>
+    ));
+  };
+
+  const renderMobileProductCards = (items) => {
+    if (!items.length) {
+      return <p className="text-sm text-gray-400 px-1">No products found in this category.</p>;
+    }
+
+    return items.map((product) => (
+      <article key={product.id} className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-xs text-gray-500 font-medium">ID: {product.id}</p>
+            <h3 className="mt-1 text-sm font-semibold text-gray-800 wrap-break-word">{product.name || '-'}</h3>
+          </div>
+          <p className="text-sm font-semibold text-gray-800 whitespace-nowrap">${Number(product.price || 0).toFixed(2)}</p>
+        </div>
+
+        <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-gray-600">
+          <p><span className="font-medium">Department:</span> {formatDepartmentLabel(product.department || 'uncategorized')}</p>
+          <p><span className="font-medium">Rating:</span> {Number(product.rating || 0).toFixed(1)}</p>
+          <p><span className="font-medium">Reviews:</span> {product.reviews || 0}</p>
+          <p><span className="font-medium">Created:</span> {product.created_at ? new Date(product.created_at).toLocaleDateString() : '-'}</p>
+        </div>
+
+        <p className="mt-2 text-xs text-gray-600 wrap-break-word"><span className="font-medium">Description:</span> {product.description || '-'}</p>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => openEditModal(product)}
+            className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50"
+          >
+            <Pencil size={12} /> Edit
+          </button>
+          <button
+            type="button"
+            onClick={() => handleDelete(product.id)}
+            className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50"
+          >
+            <Trash2 size={12} /> Delete
+          </button>
+        </div>
+      </article>
+    ));
+  };
+
   const openModal = () => {
     setError('');
     setFormData(initialForm);
@@ -154,7 +264,7 @@ const ProductsPage = () => {
         <button
           type="button"
           onClick={openModal}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-[#5B5FEF] text-white text-sm font-semibold hover:opacity-90 transition mb-3"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-[#007E5D] text-white text-sm font-semibold hover:opacity-90 transition mb-3"
         >
           <Plus size={16} /> Add Product
         </button>
@@ -168,64 +278,59 @@ const ProductsPage = () => {
         ) : products.length === 0 ? (
           <div className="py-16 text-center text-sm text-gray-400">No products found. Use Add Product to create your first record.</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b border-gray-100 bg-[#F9FAFC]">
-                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">ID</th>
-                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Department</th>
-                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Name</th>
-                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Price</th>
-                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Rating</th>
-                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Reviews</th>
-                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Description</th>
-                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Created</th>
-                  <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((product) => (
-                  <tr key={product.id} className="border-b border-gray-50 last:border-b-0">
-                    <td className="py-3.5 px-4 text-sm text-gray-700">{product.id}</td>
-                    <td className="py-3.5 px-4 text-sm text-gray-700 capitalize">{product.department || '-'}</td>
-                    <td className="py-3.5 px-4 text-sm font-semibold text-gray-800">{product.name || '-'}</td>
-                    <td className="py-3.5 px-4 text-sm text-gray-700">${Number(product.price || 0).toFixed(2)}</td>
-                    <td className="py-3.5 px-4 text-sm text-gray-700">{Number(product.rating || 0).toFixed(1)}</td>
-                    <td className="py-3.5 px-4 text-sm text-gray-700">{product.reviews || 0}</td>
-                    <td className="py-3.5 px-4 text-sm text-gray-700">{product.description || '-'}</td>
-                    <td className="py-3.5 px-4 text-sm text-gray-500">{new Date(product.created_at).toLocaleString()}</td>
-                    <td className="py-3.5 px-4 text-sm text-gray-700">
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => openEditModal(product)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50"
-                        >
-                          <Pencil size={12} /> Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(product.id)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50"
-                        >
-                          <Trash2 size={12} /> Delete
-                        </button>
-                      </div>
-                    </td>
+          <>
+            <div className="md:hidden p-4 space-y-5 bg-[#F9FAFC]">
+              {orderedDepartments.map((department) => (
+                <section key={department}>
+                  <p className="mb-3 py-2 px-3 text-xs font-semibold tracking-wider text-emerald-700 uppercase bg-emerald-50 rounded-lg border border-emerald-100">
+                    {formatDepartmentLabel(department)} ({groupedProducts[department].length})
+                  </p>
+                  <div className="space-y-3">
+                    {renderMobileProductCards(groupedProducts[department])}
+                  </div>
+                </section>
+              ))}
+            </div>
+
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-gray-100 bg-[#F9FAFC]">
+                    <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">ID</th>
+                    <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Department</th>
+                    <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Name</th>
+                    <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Price</th>
+                    <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Rating</th>
+                    <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Reviews</th>
+                    <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Description</th>
+                    <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Created</th>
+                    <th className="text-left text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider py-3 px-4">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {orderedDepartments.map((department) => (
+                    <React.Fragment key={department}>
+                      <tr className="bg-emerald-50/60 border-y border-emerald-100">
+                        <td colSpan={9} className="py-2.5 px-4 text-xs font-semibold tracking-wider text-emerald-700 uppercase">
+                          {formatDepartmentLabel(department)} ({groupedProducts[department].length})
+                        </td>
+                      </tr>
+                      {renderProductRows(groupedProducts[department])}
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 
       {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/45 flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-white rounded-2xl shadow-[0_25px_80px_rgba(0,0,0,0.22)] border border-gray-100">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+        <div className="fixed inset-0 z-50 bg-black/45 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="w-full max-w-lg max-h-[88vh] bg-white rounded-2xl shadow-[0_25px_80px_rgba(0,0,0,0.22)] border border-gray-100 flex flex-col">
+            <div className="flex items-center justify-between px-4 sm:px-5 py-3.5 border-b border-gray-100 shrink-0">
               <h2 className="text-lg font-semibold">{editingId ? 'Edit Product' : 'Add Product'}</h2>
               <button
                 type="button"
@@ -236,14 +341,14 @@ const ProductsPage = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-5 space-y-4">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-3.5 overflow-y-auto">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Department *</label>
                 <select
                   name="department"
                   value={formData.department}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF]"
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#007E5D]"
                 >
                   <option value="clothing">Clothing</option>
                   <option value="electronics">Electronics</option>
@@ -259,7 +364,7 @@ const ProductsPage = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF]"
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#007E5D]"
                   placeholder="Enter product name"
                 />
               </div>
@@ -273,7 +378,7 @@ const ProductsPage = () => {
                   name="price"
                   value={formData.price}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF]"
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#007E5D]"
                   placeholder="Enter product price"
                 />
               </div>
@@ -288,7 +393,7 @@ const ProductsPage = () => {
                     name="oldPrice"
                     value={formData.oldPrice}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF]"
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#007E5D]"
                     placeholder="Optional"
                   />
                 </div>
@@ -302,7 +407,7 @@ const ProductsPage = () => {
                     name="rating"
                     value={formData.rating}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF]"
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#007E5D]"
                     placeholder="0 - 5"
                   />
                 </div>
@@ -314,7 +419,7 @@ const ProductsPage = () => {
                     name="reviews"
                     value={formData.reviews}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF]"
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#007E5D]"
                     placeholder="0"
                   />
                 </div>
@@ -327,7 +432,7 @@ const ProductsPage = () => {
                   name="color"
                   value={formData.color}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF]"
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#007E5D]"
                   placeholder="Optional color"
                 />
               </div>
@@ -339,7 +444,7 @@ const ProductsPage = () => {
                   name="image"
                   value={formData.image}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF]"
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#007E5D]"
                   placeholder="https://..."
                 />
               </div>
@@ -351,7 +456,7 @@ const ProductsPage = () => {
                   name="images"
                   value={formData.images}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF]"
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#007E5D]"
                   placeholder="Comma separated URLs"
                 />
               </div>
@@ -362,8 +467,8 @@ const ProductsPage = () => {
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
-                  rows={4}
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#5B5FEF] resize-none"
+                  rows={3}
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#007E5D] resize-none"
                   placeholder="Enter product description"
                 />
               </div>
@@ -381,7 +486,7 @@ const ProductsPage = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2.5 text-sm font-semibold rounded-lg bg-[#5B5FEF] text-white hover:opacity-90 transition disabled:opacity-60"
+                  className="px-4 py-2.5 text-sm font-semibold rounded-lg bg-[#007E5D] text-white hover:opacity-90 transition disabled:opacity-60"
                 >
                   {isSubmitting ? (editingId ? 'Saving...' : 'Creating...') : (editingId ? 'Save Changes' : 'Create Product')}
                 </button>
