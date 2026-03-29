@@ -209,16 +209,6 @@ const updateDeliveryStatus = async (req, res) => {
       return res.status(400).json({ message: 'Invalid delivery status' });
     }
 
-    const existingRows = await queryAsync('SELECT id, delivery_status FROM orders WHERE id = ?', [orderId]);
-
-    if (!existingRows.length) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
-
-    if (existingRows[0].delivery_status === 'delivered') {
-      return res.status(409).json({ message: 'Delivered orders cannot be updated' });
-    }
-
     await queryAsync(
       'UPDATE orders SET delivery_status = ?, tracking_note = ? WHERE id = ?',
       [delivery_status, tracking_note?.trim() || null, orderId]

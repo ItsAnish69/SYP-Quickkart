@@ -3,8 +3,6 @@ import axios from 'axios';
 import { Trash2 } from 'lucide-react';
 
 const statusOptions = ['processing', 'packed', 'shipped', 'out-for-delivery', 'delivered', 'cancelled'];
-const isDelivered = (status) => status === 'delivered';
-const isOrderLocked = (order) => isDelivered(order.persisted_delivery_status || order.delivery_status);
 
 const paymentLabel = (value) => {
   if (!value) return 'Card';
@@ -25,11 +23,7 @@ const DeliveryTrackingPage = () => {
   const fetchOrders = async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/orders');
-      const normalizedOrders = (response.data?.data || []).map((order) => ({
-        ...order,
-        persisted_delivery_status: order.delivery_status,
-      }));
-      setOrders(normalizedOrders);
+      setOrders(response.data?.data || []);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load delivery tracking data');
     } finally {
@@ -48,11 +42,6 @@ const DeliveryTrackingPage = () => {
   };
 
   const saveDeliveryStatus = async (order) => {
-    if (isOrderLocked(order)) {
-      setError('Delivered orders cannot be updated further');
-      return;
-    }
-
     setSavingOrderId(order.id);
     setError('');
 
@@ -64,17 +53,7 @@ const DeliveryTrackingPage = () => {
 
       const updated = response.data?.data;
       if (updated) {
-        setOrders((prev) =>
-          prev.map((item) =>
-            item.id === updated.id
-              ? {
-                  ...item,
-                  ...updated,
-                  persisted_delivery_status: updated.delivery_status,
-                }
-              : item
-          )
-        );
+        setOrders((prev) => prev.map((item) => (item.id === updated.id ? { ...item, ...updated } : item)));
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to update delivery status');
@@ -136,7 +115,6 @@ const DeliveryTrackingPage = () => {
                     <select
                       value={order.delivery_status}
                       onChange={(e) => handleFieldChange(order.id, 'delivery_status', e.target.value)}
-                      disabled={isOrderLocked(order)}
                       className="w-full rounded-lg border border-gray-200 px-2.5 py-2 text-sm outline-none focus:border-[#007E5D]"
                     >
                       {statusOptions.map((status) => (
@@ -151,7 +129,6 @@ const DeliveryTrackingPage = () => {
                       type="text"
                       value={order.tracking_note || ''}
                       onChange={(e) => handleFieldChange(order.id, 'tracking_note', e.target.value)}
-                      disabled={isOrderLocked(order)}
                       placeholder="e.g. Rider assigned"
                       className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#007E5D]"
                     />
@@ -161,10 +138,10 @@ const DeliveryTrackingPage = () => {
                     <button
                       type="button"
                       onClick={() => saveDeliveryStatus(order)}
-                      disabled={savingOrderId === order.id || isOrderLocked(order)}
+                      disabled={savingOrderId === order.id}
                       className="rounded-lg bg-[#007E5D] px-3 py-2 text-white text-xs font-semibold hover:opacity-90 transition disabled:opacity-60"
                     >
-                      {savingOrderId === order.id ? 'Saving...' : isOrderLocked(order) ? 'Delivered' : 'Update'}
+                      {savingOrderId === order.id ? 'Saving...' : 'Update'}
                     </button>
                     <button
                       type="button"
@@ -210,7 +187,6 @@ const DeliveryTrackingPage = () => {
                         <select
                           value={order.delivery_status}
                           onChange={(e) => handleFieldChange(order.id, 'delivery_status', e.target.value)}
-                          disabled={isOrderLocked(order)}
                           className="w-full rounded-lg border border-gray-200 px-2.5 py-2 text-sm outline-none focus:border-[#007E5D]"
                         >
                           {statusOptions.map((status) => (
@@ -223,7 +199,6 @@ const DeliveryTrackingPage = () => {
                           type="text"
                           value={order.tracking_note || ''}
                           onChange={(e) => handleFieldChange(order.id, 'tracking_note', e.target.value)}
-                          disabled={isOrderLocked(order)}
                           placeholder="e.g. Rider assigned"
                           className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#007E5D]"
                         />
@@ -233,10 +208,10 @@ const DeliveryTrackingPage = () => {
                           <button
                             type="button"
                             onClick={() => saveDeliveryStatus(order)}
-                            disabled={savingOrderId === order.id || isOrderLocked(order)}
+                            disabled={savingOrderId === order.id}
                             className="rounded-lg bg-[#007E5D] px-3 py-2 text-white text-xs font-semibold hover:opacity-90 transition disabled:opacity-60"
                           >
-                            {savingOrderId === order.id ? 'Saving...' : isOrderLocked(order) ? 'Delivered' : 'Update'}
+                            {savingOrderId === order.id ? 'Saving...' : 'Update'}
                           </button>
                           <button
                             type="button"
