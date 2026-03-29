@@ -24,6 +24,7 @@ import ResetPassword from './pages/resetPassword';
 import AdminDashboard from './pages/adminDashboard/AdminDashboard';
 import Payment from './pages/payment';
 import PaymentSuccess from './pages/paymentSuccess';
+import Settings from './pages/settings';
 import { Navigate, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -71,7 +72,7 @@ const App = () => {
   }, [isLoggedIn]);
 
   const publicPaths = ['/', '/previewpage', '/product', '/product/electronics', '/product/groceries', '/product/home-kitchen', '/help', '/login', '/register', '/about-us', '/contact', '/change-password', '/change-password/otp', '/change-password/reset', '/forgot-password'];
-  const authOnlyPaths = ['/favourite', '/cart', '/payment', '/payment/success', '/profile', '/orders'];
+  const authOnlyPaths = ['/favourite', '/cart', '/payment', '/payment/success', '/profile', '/orders', '/settings'];
   const adminOnlyPaths = ['/admin', '/admin/dashboard'];
 
   const isProductDetailsRoute = /^\/product\/\d+$/.test(location.pathname);
@@ -138,6 +139,7 @@ const App = () => {
       <Route path='/contact' element={<Contact/>}/>
       <Route path='/profile' element={<RequireAuth><Profile/></RequireAuth>}/>
       <Route path='/orders' element={<RequireAuth><YourOrders/></RequireAuth>}/>
+      <Route path='/settings' element={<RequireAuth><Settings/></RequireAuth>}/>
       <Route path='/help' element={<Help/>}/>
       <Route path='/login' element={<Login/>}/>
       <Route path='/register' element={<Register/>}/>

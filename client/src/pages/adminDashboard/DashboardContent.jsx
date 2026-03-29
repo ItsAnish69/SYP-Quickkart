@@ -38,7 +38,7 @@ const DashboardContent = () => {
     const data = overview?.kpis || {};
     return [
       { label: 'Total Orders', value: Number(data.totalOrders || 0).toLocaleString() },
-      { label: 'Revenue (Paid)', value: `$${Number(data.totalRevenue || 0).toFixed(2)}` },
+      { label: 'Total Sales', value: `$${Number(data.totalRevenue || 0).toFixed(2)}` },
       { label: 'Customers', value: Number(data.totalCustomers || 0).toLocaleString() },
       { label: 'Products', value: Number(data.totalProducts || 0).toLocaleString() },
     ];

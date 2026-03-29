@@ -125,8 +125,8 @@ const Home = () => {
   ];
 
   const categoryStrip = [
-    { name: "Vacuum cleaners", label: "Big Sale 25%", icon: "🧹" },
-    { name: "Xbox & Consoles", label: "Big Sale 30%", icon: "🎮" },
+    { name: "Vacuum & Floor Care", label: "", icon: "🧹" },
+    { name: "Xbox & Consoles", label: "", icon: "🎮" },
     { name: "Portable speakers", label: "", icon: "🔊" },
     { name: "Projectors", label: "", icon: "📽️" },
   ];
